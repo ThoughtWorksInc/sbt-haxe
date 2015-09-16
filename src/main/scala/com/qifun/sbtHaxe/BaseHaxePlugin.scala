@@ -43,6 +43,7 @@ final object BaseHaxePlugin extends AutoPlugin {
   override final def globalSettings =
     super.globalSettings ++ Seq(
       haxeOptions := Nil,
+      haxeMacros := Nil,
       haxeXmls := Nil,
       haxeCommand := "haxe",
       haxelibCommand := "haxelib")

@@ -35,8 +35,8 @@ final object SbtHaxe {
   private lazy val CSharpUnitTestErrorRegex = """(^ERR:\s(.*)$)|(^FAILED\s(\d)*\stests,(.*)$)|(^Called\sfrom(.*)$)""".r
 
   private final def haxeSetting(
-    haxeConfiguration: Configuration,
-    injectConfiguration: Configuration) = {
+                                 haxeConfiguration: Configuration,
+                                 injectConfiguration: Configuration) = {
     haxe in injectConfiguration := {
       val includes = (dependencyClasspath in haxeConfiguration).value
       val haxeStreams = (streams in haxeConfiguration).value
@@ -50,83 +50,92 @@ final object SbtHaxe {
           target / (injectConfiguration.name + "_haxe-cache"),
           inStyle = FilesInfo.lastModified,
           outStyle = FilesInfo.exists) { (in: Set[File]) =>
-            IO.withTemporaryDirectory { temporaryDirectory =>
-              val deps =
-                (buildDependencies in haxeConfiguration).value.classpath((thisProjectRef in haxeConfiguration).value)
+          IO.withTemporaryDirectory { temporaryDirectory =>
+            val deps =
+              (buildDependencies in haxeConfiguration).value.classpath((thisProjectRef in haxeConfiguration).value)
 
-              val processBuilder =
-                Seq[String](
-                  (haxeCommand in injectConfiguration).value) ++
-                  (for (sourcePath <- (sourceDirectories in haxeConfiguration).value) yield {
-                    Seq("-cp", sourcePath.getPath)
+            val processBuilder =
+              Seq[String](
+                (haxeCommand in injectConfiguration).value) ++
+                (for (sourcePath <- (sourceDirectories in haxeConfiguration).value) yield {
+                  Seq("-cp", sourcePath.getPath)
+                }).flatten ++
+                projectPathFlags(
+                  haxeStreams,
+                  target,
+                  includes,
+                  scalaVersion.value,
+                  haxeConfiguration.name) ++
+                (for {
+                  path <- (dependencyClasspath in injectConfiguration).value
+                  if path.data.exists
+                } yield {
+                    Seq("-java-lib", path.data.toString)
                   }).flatten ++
-                  projectPathFlags(
-                    haxeStreams,
-                    target,
-                    includes,
-                    scalaVersion.value,
-                    haxeConfiguration.name) ++
-                    (for {
-                      path <- (dependencyClasspath in injectConfiguration).value
-                      if path.data.exists
-                    } yield {
-                      Seq("-java-lib", path.data.toString)
-                    }).flatten ++
-                    Seq("-" + platformName,
-                      (haxeOutputPath in injectConfiguration).value.getOrElse(temporaryDirectory).getPath) ++
-              (haxeOptions in injectConfiguration in haxe).value ++
+                Seq("-" + platformName,
+                  (haxeOutputPath in injectConfiguration).value.getOrElse(temporaryDirectory).getPath) ++
+                (haxeMacros in injectConfiguration in haxe).??(Nil).value.flatMap { macroExpr =>
+                  Seq(
+                    "--macro",
+                    raw"""hamu.ExprEvaluator.parseAndEvaluate("${JSONFormat.quoteString(macroExpr)}")""")
+                } ++
+                (haxeOptions in injectConfiguration in haxe).value ++
                 haxeModules(in, (sourceDirectories in haxeConfiguration).value)
-              (streams in haxeConfiguration).value.log.info(processBuilder.map(JSONFormat.quoteString).mkString("\"", "\" \"", "\""))
-              val logger = (streams in haxeConfiguration).value.log
-              IO.delete(haxeOutput)
-              class HaxeProcessLogger extends ProcessLogger {
-                def info(s: => String): Unit = {
-                  if (ErrorRegex.findAllIn(s).hasNext) {
-                    logger.error(s)
-                  } else {
-                    logger.info(s)
-                  }
+            (streams in haxeConfiguration).value.log.info(processBuilder.map(JSONFormat.quoteString).mkString("\"", "\" \"", "\""))
+            val logger = (streams in haxeConfiguration).value.log
+            IO.delete(haxeOutput)
+            class HaxeProcessLogger extends ProcessLogger {
+              def info(s: => String): Unit = {
+                if (ErrorRegex.findAllIn(s).hasNext) {
+                  logger.error(s)
+                } else {
+                  logger.info(s)
                 }
-                def error(s: => String): Unit = {
-                  if (WarningRegex.findAllIn(s).hasNext) {
-                    logger.warn(s)
-                  } else {
-                    logger.error(s)
-                  }
-                }
-                def buffer[T](f: => T): T = f
               }
-              val haxeLogger = new HaxeProcessLogger
-              processBuilder !< haxeLogger match {
-                case 0 => {
-                  (haxeConfiguration == HaxeJava || haxeConfiguration == TestHaxeJava) match {
-                    case true => {
-                      val temporarySrc = temporaryDirectory / "src"
-                      val moveMapping = (temporaryDirectory ** (globFilter("*.java"))) pair {
-                        _.relativeTo(temporarySrc).map {
-                          haxeOutput / _.getPath
-                        }
+
+              def error(s: => String): Unit = {
+                if (WarningRegex.findAllIn(s).hasNext) {
+                  logger.warn(s)
+                } else {
+                  logger.error(s)
+                }
+              }
+
+              def buffer[T](f: => T): T = f
+            }
+            val haxeLogger = new HaxeProcessLogger
+            processBuilder !< haxeLogger match {
+              case 0 => {
+                (haxeConfiguration == HaxeJava || haxeConfiguration == TestHaxeJava) match {
+                  case true => {
+                    val temporarySrc = temporaryDirectory / "src"
+                    val moveMapping = (temporaryDirectory ** (globFilter("*.java"))) pair {
+                      _.relativeTo(temporarySrc).map {
+                        haxeOutput / _.getPath
                       }
-                      IO.move(moveMapping)
-                      moveMapping.map { _._2 }(collection.breakOut)
                     }
-                    case _ =>
-                      haxeOutput.get.toSet
+                    IO.move(moveMapping)
+                    moveMapping.map {
+                      _._2
+                    }(collection.breakOut)
                   }
+                  case _ =>
+                    haxeOutput.get.toSet
                 }
-                case result => {
-                  throw new MessageOnlyException("Haxe returns " + result)
-                }
+              }
+              case result => {
+                throw new MessageOnlyException("Haxe returns " + result)
               }
             }
           }
+        }
       cachedTranfer((sources in haxeConfiguration).value.toSet).toSeq
     }
   }
 
   private final def haxeXmlSetting(
-    haxeConfiguration: Configuration,
-    injectConfiguration: Configuration) = {
+                                    haxeConfiguration: Configuration,
+                                    injectConfiguration: Configuration) = {
     haxeXml in injectConfiguration := {
       val haxeStreams = (streams in haxeConfiguration).value
       val target = (crossTarget in haxeConfiguration).value
@@ -138,49 +147,54 @@ final object SbtHaxe {
           target / (injectConfiguration.name + "_dox-cache"),
           inStyle = FilesInfo.lastModified,
           outStyle = FilesInfo.exists) { (in: Set[File]) =>
-            (streams in haxeConfiguration).value.log.info("Generating haxe xml document...")
-            val logger = (streams in haxeConfiguration).value.log
-            val xmlFile = (Keys.target in haxeXml in injectConfiguration).value
-            xmlFile.getParentFile.mkdirs()
-            val processBuilderXml =
-              Seq[String](
-                (haxeCommand in injectConfiguration).value,
-                "-D", "doc-gen",
-                "-xml", xmlFile.toString,
-                raw"-$doxPlatform", "dummy", "--no-output") ++
-                (haxeOptions in injectConfiguration in haxeXml).value ++
-                (for (sourcePath <- (sourceDirectories in haxeConfiguration).value) yield {
-                  Seq("-cp", sourcePath.getPath.toString)
+          (streams in haxeConfiguration).value.log.info("Generating haxe xml document...")
+          val logger = (streams in haxeConfiguration).value.log
+          val xmlFile = (Keys.target in haxeXml in injectConfiguration).value
+          xmlFile.getParentFile.mkdirs()
+          val processBuilderXml =
+            Seq[String](
+              (haxeCommand in injectConfiguration).value,
+              "-D", "doc-gen",
+              "-xml", xmlFile.toString,
+              raw"-$doxPlatform", "dummy", "--no-output") ++
+              (haxeMacros in injectConfiguration in haxeXml).??(Nil).value.flatMap { macroExpr =>
+                Seq(
+                  "--macro",
+                  raw"""hamu.ExprEvaluator.parseAndEvaluate("${JSONFormat.quoteString(macroExpr)}")""")
+              } ++
+              (haxeOptions in injectConfiguration in haxeXml).value ++
+              (for (sourcePath <- (sourceDirectories in haxeConfiguration).value) yield {
+                Seq("-cp", sourcePath.getPath.toString)
+              }).flatten ++
+              projectPathFlags(
+                haxeStreams,
+                target,
+                includes,
+                scalaVersion.value,
+                haxeConfiguration.name) ++
+              (for {
+                path <- (dependencyClasspath in injectConfiguration).value
+                if path.data.exists
+              } yield {
+                  Seq("-java-lib", path.data.toString)
                 }).flatten ++
-                projectPathFlags(
-                  haxeStreams,
-                  target,
-                  includes,
-                  scalaVersion.value,
-                  haxeConfiguration.name) ++
-                  (for {
-                    path <- (dependencyClasspath in injectConfiguration).value
-                    if path.data.exists
-                  } yield {
-                    Seq("-java-lib", path.data.toString)
-                  }).flatten ++
-                  haxeModules(in, (sourceDirectories in haxeConfiguration).value)
-            haxeStreams.log.info(processBuilderXml.mkString("\"", "\" \"", "\""))
-            processBuilderXml !< logger match {
-              case 0 =>
-                haxeStreams.log.debug(raw"Generate $doxPlatform.xml success!")
-              case result =>
-                throw new MessageOnlyException(raw"Generate $doxPlatform.xml fail: " + result)
-            }
-            Seq[File]().toSet + xmlFile
+              haxeModules(in, (sourceDirectories in haxeConfiguration).value)
+          haxeStreams.log.info(processBuilderXml.mkString("\"", "\" \"", "\""))
+          processBuilderXml !< logger match {
+            case 0 =>
+              haxeStreams.log.debug(raw"Generate $doxPlatform.xml success!")
+            case result =>
+              throw new MessageOnlyException(raw"Generate $doxPlatform.xml fail: " + result)
           }
+          Seq[File]().toSet + xmlFile
+        }
       cachedTranfer((sources in haxeConfiguration).value.toSet).toSeq
     }
   }
 
   private[sbtHaxe] final def docSetting(
-    haxeConfiguration: Configuration,
-    injectConfiguration: Configuration) = {
+                                         haxeConfiguration: Configuration,
+                                         injectConfiguration: Configuration) = {
     doc in haxeConfiguration <<= Def.task {
       val haxeStreams = (streams in injectConfiguration).value
       val target = (crossTarget in injectConfiguration).value
@@ -201,10 +215,10 @@ final object SbtHaxe {
         case 0 =>
           (doxOutputDirectory ** (
             globFilter("*.html") ||
-            globFilter("*.css") ||
-            globFilter("*.js") ||
-            globFilter("*.png") ||
-            globFilter("*.ico"))).get
+              globFilter("*.css") ||
+              globFilter("*.js") ||
+              globFilter("*.png") ||
+              globFilter("*.ico"))).get
           doxOutputDirectory
         case result =>
           throw new MessageOnlyException("Haxe create doc exception: " + result)
@@ -228,7 +242,9 @@ final object SbtHaxe {
             logger.info(s)
           }
         }
+
         def error(s: => String): Unit = logger.error(s)
+
         def buffer[T](f: => T): T = f
       }
       val testLogger = new TestProcessLogger
@@ -244,18 +260,18 @@ final object SbtHaxe {
   }
 
   private[sbtHaxe] final def buildInternalDependencyClasspath(
-    projectRef: ProjectRef,
-    configuration: Configuration,
-    settingsData: Settings[Scope],
-    buildDependencies: BuildDependencies,
-    acc: Seq[File]): Seq[File] = {
+                                                               projectRef: ProjectRef,
+                                                               configuration: Configuration,
+                                                               settingsData: Settings[Scope],
+                                                               buildDependencies: BuildDependencies,
+                                                               acc: Seq[File]): Seq[File] = {
     val dependencies = buildDependencies.classpath(projectRef)
     dependencies match {
       case dependencies1 if !dependencies1.isEmpty =>
         val newAcc: Seq[File] = acc ++ (for {
           ResolvedClasspathDependency(dep, _) <- dependencies1
           conf <- Classpaths.allConfigs(configuration)
-          sourceDirectoriesOption = (sourceDirectories in (dep, conf)).get(settingsData)
+          sourceDirectoriesOption = (sourceDirectories in(dep, conf)).get(settingsData)
           if sourceDirectoriesOption.isDefined
           directory <- sourceDirectoriesOption.get
         } yield directory)
@@ -276,22 +292,26 @@ final object SbtHaxe {
    * Builds -cp xxx command-line options for haxe compile from dependent projects.
    */
   private final def projectPathFlags(
-    taskStreams: TaskStreams,
-    targetDirectory: RichFile,
-    depsClasspath: Seq[Attributed[File]],
-    scalaVersion: String,
-    configurationName: String): Seq[String] = {
+                                      taskStreams: TaskStreams,
+                                      targetDirectory: RichFile,
+                                      depsClasspath: Seq[Attributed[File]],
+                                      scalaVersion: String,
+                                      configurationName: String): Seq[String] = {
     val unpack = FileFunction.cached(
       targetDirectory / (configurationName + "_unpacked-haxe-cache"),
       inStyle = FilesInfo.lastModified,
       outStyle = FilesInfo.exists) { haxeJars: Set[File] =>
-        for {
-          haxeJar <- haxeJars
-          output <- IO.unzip(haxeJar, targetDirectory / (configurationName + "_unpacked-haxe") / haxeJar.getName)
-        } yield output
-      }
-    val (unpacking, rawIncludes) = depsClasspath.partition { _.data.getPath.endsWith(".jar") }
-    val unpacked = unpack(unpacking.map { _.data }(collection.breakOut))
+      for {
+        haxeJar <- haxeJars
+        output <- IO.unzip(haxeJar, targetDirectory / (configurationName + "_unpacked-haxe") / haxeJar.getName)
+      } yield output
+    }
+    val (unpacking, rawIncludes) = depsClasspath.partition {
+      _.data.getPath.endsWith(".jar")
+    }
+    val unpacked = unpack(unpacking.map {
+      _.data
+    }(collection.breakOut))
     val directories = (for {
       haxeJar <- unpacking
     } yield targetDirectory / (configurationName + "_unpacked-haxe") / haxeJar.data.getName) ++ rawIncludes.map(_.data)
@@ -338,7 +358,9 @@ final object SbtHaxe {
           if (directoryCount == 0 && fileCount == 0) {
             Seq()
           } else {
-            (if (fileCount > 0 && (files exists { _.getPath.toString.endsWith(".hx") })) {
+            (if (fileCount > 0 && (files exists {
+              _.getPath.toString.endsWith(".hx")
+            })) {
               Seq("--include",
                 files(0).relativeTo(projectSource) match {
                   case Some(relativeFile: File) =>
@@ -373,37 +395,39 @@ final object SbtHaxe {
       Defaults.packageTaskSettings(
         packageBin,
         Defaults.sourceMappings) ++
-        Seq(
-          managedClasspath := {
-            def makeArtifactFilter(configuration: Configuration): DependencyFilter = {
-              configuration.extendsConfigs.map(makeArtifactFilter).fold(artifactFilter(classifier = configuration.name))(_ || _)
+      Seq(
+        managedClasspath := {
+          def makeArtifactFilter(configuration: Configuration): DependencyFilter = {
+            configuration.extendsConfigs.map(makeArtifactFilter).fold(artifactFilter(classifier = configuration.name))(_ || _)
+          }
+          update.value.filter(
+            (configurationFilter(configuration.value.name) || configurationFilter("provided")) &&
+              makeArtifactFilter(configuration.value)).toSeq.map {
+            case (conf, module, art, file) => {
+              Attributed(file)(
+                AttributeMap.empty.
+                  put(artifact.key, art).
+                  put(moduleID.key, module).
+                  put(configuration.key, configuration.value))
             }
-            update.value.filter(
-              (configurationFilter(configuration.value.name) || configurationFilter("provided")) &&
-                makeArtifactFilter(configuration.value)).toSeq.map {
-                case (conf, module, art, file) => {
-                  Attributed(file)(
-                    AttributeMap.empty.
-                      put(artifact.key, art).
-                      put(moduleID.key, module).
-                      put(configuration.key, configuration.value))
-                }
-              }.distinct
-          },
-          internalDependencyClasspath := {
-            (SbtHaxe.buildInternalDependencyClasspath(
-              thisProjectRef.value,
-              configuration.value,
-              settingsData.value,
-              buildDependencies.value, Seq[File]()) ++ (for {
-                ac <- Classpaths.allConfigs(configuration.value)
-                if ac != configuration.value
-                sourcePaths <- (sourceDirectories in (thisProjectRef.value, ac)).get(settingsData.value).toList
-                sourcePath <- sourcePaths
-              } yield sourcePath)).classpath
-          },
-          unmanagedSourceDirectories := Seq(sourceDirectory.value),
-          includeFilter in unmanagedSources := new FileFilter { override final def accept(file: File) = file.isFile })
+          }.distinct
+        },
+        internalDependencyClasspath := {
+          (SbtHaxe.buildInternalDependencyClasspath(
+            thisProjectRef.value,
+            configuration.value,
+            settingsData.value,
+            buildDependencies.value, Seq[File]()) ++ (for {
+            ac <- Classpaths.allConfigs(configuration.value)
+            if ac != configuration.value
+            sourcePaths <- (sourceDirectories in(thisProjectRef.value, ac)).get(settingsData.value).toList
+            sourcePath <- sourcePaths
+          } yield sourcePath)).classpath
+        },
+        unmanagedSourceDirectories := Seq(sourceDirectory.value),
+        includeFilter in unmanagedSources := new FileFilter {
+          override final def accept(file: File) = file.isFile
+        })
 
   private[sbtHaxe] final val extendSettings =
     Seq(
@@ -424,8 +448,8 @@ final object SbtHaxe {
         sourceGenerators.value ++ (sourceGenerators in TestHaxe).value)
 
   private[sbtHaxe] final def injectSettings(
-    haxeConfiguration: Configuration,
-    injectConfiguration: Configuration) = {
+                                             haxeConfiguration: Configuration,
+                                             injectConfiguration: Configuration) = {
     Seq(
       target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
       target in haxeXml := (crossTarget in injectConfiguration).value / "haxe-xml",

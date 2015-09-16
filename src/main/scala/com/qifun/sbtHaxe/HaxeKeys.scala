@@ -22,6 +22,7 @@ import Keys._
 import java.io.File
 
 trait HaxeKeys {
+  final val haxeMacros = SettingKey[Seq[String]]("haxe-macros", "--macro command-line options for Haxe compiler.")
   final val haxeOptions = SettingKey[Seq[String]]("haxe-options", "Additional command-line options for Haxe compiler.")
   final val haxeCommand = SettingKey[String]("haxe-command", "The Haxe executable.")
   final val haxelibCommand = SettingKey[String]("haxelib-command", "The haxelib executable")
