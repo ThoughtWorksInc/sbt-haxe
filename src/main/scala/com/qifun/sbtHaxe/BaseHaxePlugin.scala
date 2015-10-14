@@ -81,14 +81,17 @@ final object BaseHaxePlugin extends AutoPlugin {
         haxelibJson := JSONObject(Map(
           Seq(
             name.?.value.map("name" -> _),
-            homepage.value.map("url" -> _),
+            homepage.value.map("url" -> _.toString),
             licenses.?.value.flatMap(_.unzip._1.headOption.map("license" -> _)),
             haxelibTags.?.value.map("tags" -> _),
             description.?.value.map("description" -> _),
             version.?.value.map("version" -> _),
             haxelibReleaseNote.?.value.map("releasenote" -> _),
             Some("contributors" -> JSONArray(haxelibContributors.value.toList)),
-            haxelibDependencies.?.value.map("dependencies" -> JSONObject(_))
+            Some("dependencies" -> JSONObject(haxelibDependencies.value.mapValues {
+              case LastVersion => ""
+              case SpecificVersion(v) => v
+            }))
           ).flatten: _*
         )),
         makeHaxelibJson := {
