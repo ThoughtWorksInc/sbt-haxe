@@ -38,27 +38,27 @@ trait HaxeKeys {
 
 
   type DependencyVersion = com.qifun.sbtHaxe.DependencyVersion
-  val DependencyVersion = com.qifun.sbtHaxe.DependencyVersion
+  final val DependencyVersion = com.qifun.sbtHaxe.DependencyVersion
 
-  val haxelibContributors = SettingKey[Seq[String]]("haxelib-contributors", "Contributors in haxelib.json")
+  final val haxelibContributors = SettingKey[Seq[String]]("haxelib-contributors", "Contributors in haxelib.json")
 
-  val haxelibSubmitUsername = SettingKey[String]("haxelib-submit-username", "The username for `haxelib submit`")
+  final val haxelibSubmitUsername = SettingKey[String]("haxelib-submit-username", "The username for `haxelib submit`")
 
-  val haxelibSubmitPassword = SettingKey[String]("haxelib-submit-password", "The password for `haxelib submit`")
-  
-  val haxelibReleaseNote = SettingKey[String]("haxelib-release-note", "The release note in haxelib.json")
+  final val haxelibSubmitPassword = SettingKey[String]("haxelib-submit-password", "The password for `haxelib submit`")
 
-  val haxelibTags = SettingKey[String]("haxelib-tags", "Tags in haxelib.json")
+  final val haxelibReleaseNote = SettingKey[String]("haxelib-release-note", "The release note in haxelib.json")
 
-  val haxelibDependencies = SettingKey[Map[String, DependencyVersion]]("haxelib-dependencies", "Additional dependencies in haxelib.json")
+  final val haxelibTags = SettingKey[String]("haxelib-tags", "Tags in haxelib.json")
 
-  val haxelibJson = SettingKey[JSONObject]("haxelib-json", "The file content of haxelib.json")
+  final val haxelibDependencies = SettingKey[Map[String, DependencyVersion]]("haxelib-dependencies", "Additional dependencies in haxelib.json")
 
-  val makeHaxelibJson = TaskKey[File]("make-haxelib-json", "Create haxelib.json")
+  final val haxelibJson = SettingKey[JSONObject]("haxelib-json", "The file content of haxelib.json")
 
-  val haxeExtraParams = SettingKey[Seq[String]]("haxe-extra-params", "The extra haxe flags in extraParams.hxml")
+  final val makeHaxelibJson = TaskKey[File]("make-haxelib-json", "Create haxelib.json")
 
-  val makeExtraParamsHxml = TaskKey[File]("make-extra-params-hxml", "Create extraParams.hxml")
+  final val haxeExtraParams = SettingKey[Seq[String]]("haxe-extra-params", "The extra haxe flags in extraParams.hxml")
+
+  final val makeExtraParamsHxml = TaskKey[File]("make-extra-params-hxml", "Create extraParams.hxml")
 }
 
 final object HaxeKeys extends HaxeKeys
