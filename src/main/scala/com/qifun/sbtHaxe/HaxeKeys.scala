@@ -42,7 +42,7 @@ trait HaxeKeys {
 
   val haxelibContributors = SettingKey[Seq[String]]("haxelib-contributors", "Contributors in haxelib.json")
 
-  val haxelibSubmitContributorIndex = SettingKey[Int]("haxelib-submit-contributor-index", "The index in haxelib-contributors that indicates the username for `haxelib submit`")
+  val haxelibSubmitUsername = SettingKey[String]("haxelib-submit-username", "The username for `haxelib submit`")
 
   val haxelibSubmitPassword = SettingKey[String]("haxelib-submit-password", "The password for `haxelib submit`")
   

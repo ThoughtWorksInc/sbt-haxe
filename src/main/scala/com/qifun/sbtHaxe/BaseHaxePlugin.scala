@@ -49,15 +49,37 @@ final object BaseHaxePlugin extends AutoPlugin {
       Seq(
         publish in Haxe := {
           val logger = (streams in publishLocal in Haxe).value.log
-          val processHaxelibLocal = Seq(
+          val contributors = haxelibContributors.value
+          val username = haxelibSubmitUsername.?.value match {
+            case None => {
+              contributors.headOption match {
+                case None => throw new MessageOnlyException(s"haxelibContributors should not be empty.")
+                case Some(firstContributor) => firstContributor
+              }
+            }
+            case Some(username) => {
+              if (contributors.contains(username)) {
+                username
+              } else {
+                throw new MessageOnlyException(
+                  s"haxelibSubmitUsername ($username) must be one of the haxelibContributors (${
+                    contributors.mkString(" or ")
+                  }).")
+              }
+            }
+          }
+          val commandWithoutPassword = Seq(
             haxelibCommand.value,
             "submit",
             (packageBin in Haxe).value.toString,
-            haxelibContributors.?.value.get(haxelibSubmitContributorIndex.?.value.get),
-            haxelibSubmitPassword.?.value.get
+            haxelibSubmitUsername.?.value.getOrElse(haxelibContributors.value(0))
           )
-          logger.info(processHaxelibLocal.mkString("\"", "\" \"", "\""))
-          processHaxelibLocal !< logger match {
+          val processHaxelibSubmit = haxelibSubmitPassword.?.value match {
+            case None => commandWithoutPassword
+            case Some(password) => commandWithoutPassword :+ password
+          }
+          logger.info(processHaxelibSubmit.mkString("\"", "\" \"", "\""))
+          processHaxelibSubmit !< logger match {
             case 0 =>
             case result =>
               throw new MessageOnlyException("Failed to submit to haxelib: " + result)
