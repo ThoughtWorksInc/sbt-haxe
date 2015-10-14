@@ -18,10 +18,12 @@
 package com.qifun.sbtHaxe
 
 import sbt._
-import Keys._
 import java.io.File
 
+import scala.util.parsing.json.JSONObject
+
 trait HaxeKeys {
+
   final val haxeMacros = SettingKey[Seq[String]]("haxe-macros", "--macro command-line options for Haxe compiler.")
   final val haxeOptions = SettingKey[Seq[String]]("haxe-options", "Additional command-line options for Haxe compiler.")
   final val haxeCommand = SettingKey[String]("haxe-command", "The Haxe executable.")
@@ -34,6 +36,29 @@ trait HaxeKeys {
   final val doxRegex = TaskKey[Seq[String]]("dox-regex", "The Regex that used to generate Haxe documentation.")
   final val haxeXml = TaskKey[Seq[File]]("haxeXml", "Generate Haxe xml.")
 
+
+  type DependencyVersion = com.qifun.sbtHaxe.DependencyVersion
+  val DependencyVersion = com.qifun.sbtHaxe.DependencyVersion
+
+  val haxelibContributors = SettingKey[Seq[String]]("haxelib-contributors", "Contributors in haxelib.json")
+
+  val haxelibSubmitContributorIndex = SettingKey[Int]("haxelib-submit-contributor-index", "The index in haxelib-contributors that indicates the username for `haxelib submit`")
+
+  val haxelibSubmitPassword = SettingKey[String]("haxelib-submit-password", "The password for `haxelib submit`")
+  
+  val haxelibReleaseNote = SettingKey[String]("haxelib-release-note", "The release note in haxelib.json")
+
+  val haxelibTags = SettingKey[String]("haxelib-tags", "Tags in haxelib.json")
+
+  val haxelibDependencies = SettingKey[Map[String, DependencyVersion]]("haxelib-dependencies", "Additional dependencies in haxelib.json")
+
+  val haxelibJson = SettingKey[JSONObject]("haxelib-json", "The file content of haxelib.json")
+
+  val makeHaxelibJson = TaskKey[File]("make-haxelib-json", "Create haxelib.json")
+
+  val haxeExtraParams = SettingKey[Seq[String]]("haxe-extra-params", "The extra haxe flags in extraParams.hxml")
+
+  val makeExtraParamsHxml = TaskKey[File]("make-extra-params-hxml", "Create extraParams.hxml")
 }
 
 final object HaxeKeys extends HaxeKeys

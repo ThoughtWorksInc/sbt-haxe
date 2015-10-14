@@ -17,12 +17,13 @@
 
 package com.qifun.sbtHaxe
 
+import com.qifun.sbtHaxe.DependencyVersion.{SpecificVersion, LastVersion}
 import sbt._
-import Keys._
-import HaxeKeys._
+import sbt.Keys._
+import com.qifun.sbtHaxe.HaxeKeys._
 import HaxeConfigurations._
 
-import scala.util.parsing.json.JSONFormat
+import scala.util.parsing.json.{JSONArray, JSONObject, JSONFormat}
 
 final object SbtHaxe {
 
@@ -210,7 +211,7 @@ final object SbtHaxe {
           "run", "dox", "--input-path", haxeXmlDirectory.toString,
           "--output-path", doxOutputDirectory.getPath.toString) ++
           (doxRegex in injectConfiguration).value
-      (streams in injectConfiguration).value.log.info(processBuildDoc.mkString("\"", "\" \"", "\""))
+      logger.info(processBuildDoc.mkString("\"", "\" \"", "\""))
       processBuildDoc !< logger match {
         case 0 =>
           (doxOutputDirectory ** (
@@ -388,20 +389,24 @@ final object SbtHaxe {
     }
   }
 
+  private def managedSourceMappings = (managedSources, managedSourceDirectories, baseDirectory) map { (srcs, sdirs, base) =>
+    (srcs --- sdirs --- base).pair(relativeTo(sdirs) | relativeTo(base) | flat).toSeq
+  }
+
   private[sbtHaxe] final val baseHaxeSettings =
     Defaults.configTasks ++
       Defaults.configPaths ++
       Classpaths.configSettings ++
       Defaults.packageTaskSettings(
         packageBin,
-        Defaults.sourceMappings) ++
+        Defaults.concatMappings(Defaults.sourceMappings, managedSourceMappings)) ++
       Seq(
         managedClasspath := {
           def makeArtifactFilter(configuration: Configuration): DependencyFilter = {
             configuration.extendsConfigs.map(makeArtifactFilter).fold(artifactFilter(classifier = configuration.name))(_ || _)
           }
           update.value.filter(
-            (configurationFilter(configuration.value.name) || configurationFilter("provided")) &&
+            (configurationFilter(configuration.value.name) || configurationFilter(Provided.name)) &&
               makeArtifactFilter(configuration.value)).toSeq.map {
             case (conf, module, art, file) => {
               Attributed(file)(
@@ -457,10 +462,17 @@ final object SbtHaxe {
         (target in haxeXml).value / raw"${(haxePlatformName in injectConfiguration).value}.xml",
       target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
       haxeSetting(haxeConfiguration, injectConfiguration),
+      haxeOptions in injectConfiguration ++= haxelibDependencies.value.flatMap {
+        case (lib, LastVersion) =>
+          Seq("-lib", lib)
+        case (lib, SpecificVersion(version)) =>
+          Seq("-lib", s"$lib:$version")
+      }(collection.breakOut(Seq.canBuildFrom)),
       haxeOptions in injectConfiguration in haxe := (haxeOptions in injectConfiguration).value,
       haxeXmlSetting(haxeConfiguration, injectConfiguration),
       haxeOptions in injectConfiguration in doc := (haxeOptions in injectConfiguration).value,
       sourceGenerators in injectConfiguration <+= haxe in injectConfiguration)
   }
+
 
 }

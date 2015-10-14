@@ -21,6 +21,7 @@ import sbt._
 import Keys._
 
 trait HaxeConfigurations {
+
   final lazy val Haxe = config("haxe")
   final lazy val TestHaxe = config("test-haxe") extend Haxe
 
