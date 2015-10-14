@@ -19,6 +19,7 @@ package com.qifun.sbtHaxe
 
 import java.io.{PipedOutputStream, PipedInputStream}
 
+import com.qifun.sbtHaxe.DependencyVersion.{LastVersion, SpecificVersion}
 import sbt._
 import Keys._
 import sbt.plugins.JvmPlugin
@@ -35,7 +36,16 @@ final object BaseHaxePlugin extends AutoPlugin {
 
   override final def trigger = allRequirements
 
-  final object autoImport extends HaxeKeys with HaxeConfigurations
+  final object autoImport extends HaxeKeys with HaxeConfigurations {
+    def haxelibOptions(dependencies: Map[String, DependencyVersion]): Seq[String] = {
+      dependencies.flatMap {
+        case (lib, LastVersion) =>
+          Seq("-lib", lib)
+        case (lib, SpecificVersion(version)) =>
+          Seq("-lib", s"$lib:$version")
+      }(collection.breakOut(Seq.canBuildFrom))
+    }
+  }
 
   import autoImport._
 

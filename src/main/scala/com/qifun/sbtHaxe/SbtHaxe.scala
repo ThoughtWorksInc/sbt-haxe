@@ -462,12 +462,6 @@ final object SbtHaxe {
         (target in haxeXml).value / raw"${(haxePlatformName in injectConfiguration).value}.xml",
       target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
       haxeSetting(haxeConfiguration, injectConfiguration),
-      haxeOptions in injectConfiguration ++= haxelibDependencies.value.flatMap {
-        case (lib, LastVersion) =>
-          Seq("-lib", lib)
-        case (lib, SpecificVersion(version)) =>
-          Seq("-lib", s"$lib:$version")
-      }(collection.breakOut(Seq.canBuildFrom)),
       haxeOptions in injectConfiguration in haxe := (haxeOptions in injectConfiguration).value,
       haxeXmlSetting(haxeConfiguration, injectConfiguration),
       haxeOptions in injectConfiguration in doc := (haxeOptions in injectConfiguration).value,
