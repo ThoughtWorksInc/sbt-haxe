@@ -320,11 +320,11 @@ final object SbtHaxe {
       dep <- directories
       if dep.exists
     } yield Seq("-cp", dep.getPath)).flatten
-    val extraParamsHxmls = (for {
+    val extraParamsHxmls = for {
       dep <- directories
       extraParamsHxmlFile = dep / "extraParams.hxml"
       if extraParamsHxmlFile.exists
-    } yield Seq("-cp", extraParamsHxmlFile.getPath)).flatten
+    } yield extraParamsHxmlFile.getPath
     dependSources ++ extraParamsHxmls
   }
 
