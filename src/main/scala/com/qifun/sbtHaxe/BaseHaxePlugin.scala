@@ -100,7 +100,8 @@ final object BaseHaxePlugin extends AutoPlugin {
           val processHaxelibLocal = Seq(
             haxelibCommand.value,
             "local",
-            (packageBin in Haxe).value.toString
+            (packageBin in Haxe).value.toString,
+            "--always"
           )
           logger.info(processHaxelibLocal.mkString("\"", "\" \"", "\""))
           processHaxelibLocal !< logger match {
@@ -127,20 +128,31 @@ final object BaseHaxePlugin extends AutoPlugin {
           ).flatten: _*
         )),
         makeHaxelibJson := {
+          val content = haxelibJson.value.toString()
           val file = (sourceManaged in Haxe).value / "haxelib.json"
-          IO.write(file, haxelibJson.value.toString(), scala.io.Codec.UTF8.charSet)
+          if (!file.exists || content != IO.read(file, scala.io.Codec.UTF8.charSet)) {
+            IO.write(file, content, scala.io.Codec.UTF8.charSet)
+          }
           file
         },
         makeExtraParamsHxml := {
-          val file = (sourceManaged in Haxe).value / "extraParams.hxml"
-          IO.write(file, haxeExtraParams.value.mkString("\"", "\"\n\"", "\""), scala.io.Codec.UTF8.charSet)
-          file
+          val parameters = haxeExtraParams.value
+          if (parameters.isEmpty) {
+            None
+          } else {
+            val content = haxeExtraParams.value.mkString("\"", "\"\n\"", "\"")
+            val file = (sourceManaged in Haxe).value / "extraParams.hxml"
+            if (!file.exists || content != IO.read(file, scala.io.Codec.UTF8.charSet)) {
+              IO.write(file, content, scala.io.Codec.UTF8.charSet)
+            }
+            Some(file)
+          }
         },
         sourceGenerators in Haxe <+= Def.task {
           Seq((makeHaxelibJson in Haxe).value)
         },
         sourceGenerators in Haxe <+= Def.task {
-          Seq((makeExtraParamsHxml in Haxe).value)
+          (makeExtraParamsHxml in Haxe).value.toSeq
         }
       )
 

@@ -55,78 +55,83 @@ final object SbtHaxe {
             val deps =
               (buildDependencies in haxeConfiguration).value.classpath((thisProjectRef in haxeConfiguration).value)
 
-            val processBuilder =
-              Seq[String](
+            val modules = haxeModules(in, (sourceDirectories in haxeConfiguration).value)
+            if (modules.nonEmpty) {
+              val processBuilder =
+                Seq[String](
                 (haxeCommand in injectConfiguration).value) ++
-                (for (sourcePath <- (sourceDirectories in haxeConfiguration).value) yield {
-                  Seq("-cp", sourcePath.getPath)
-                }).flatten ++
-                projectPathFlags(
-                  haxeStreams,
-                  target,
-                  includes,
-                  scalaVersion.value,
-                  haxeConfiguration.name) ++
-                (for {
-                  path <- (dependencyClasspath in injectConfiguration).value
-                  if path.data.exists
-                } yield {
-                    Seq("-java-lib", path.data.toString)
+                  (for (sourcePath <- (sourceDirectories in haxeConfiguration).value) yield {
+                    Seq("-cp", sourcePath.getPath)
                   }).flatten ++
-                Seq("-" + platformName,
-                  (haxeOutputPath in injectConfiguration).value.getOrElse(temporaryDirectory).getPath) ++
-                (haxeMacros in injectConfiguration in haxe).??(Nil).value.flatMap { macroExpr =>
-                  Seq(
-                    "--macro",
-                    raw"""hamu.ExprEvaluator.parseAndEvaluate("${JSONFormat.quoteString(macroExpr)}")""")
-                } ++
-                (haxeOptions in injectConfiguration in haxe).value ++
-                haxeModules(in, (sourceDirectories in haxeConfiguration).value)
-            (streams in haxeConfiguration).value.log.info(processBuilder.map(JSONFormat.quoteString).mkString("\"", "\" \"", "\""))
-            val logger = (streams in haxeConfiguration).value.log
-            IO.delete(haxeOutput)
-            class HaxeProcessLogger extends ProcessLogger {
-              def info(s: => String): Unit = {
-                if (ErrorRegex.findAllIn(s).hasNext) {
-                  logger.error(s)
-                } else {
-                  logger.info(s)
-                }
-              }
-
-              def error(s: => String): Unit = {
-                if (WarningRegex.findAllIn(s).hasNext) {
-                  logger.warn(s)
-                } else {
-                  logger.error(s)
-                }
-              }
-
-              def buffer[T](f: => T): T = f
-            }
-            val haxeLogger = new HaxeProcessLogger
-            processBuilder !< haxeLogger match {
-              case 0 => {
-                (haxeConfiguration == HaxeJava || haxeConfiguration == TestHaxeJava) match {
-                  case true => {
-                    val temporarySrc = temporaryDirectory / "src"
-                    val moveMapping = (temporaryDirectory ** (globFilter("*.java"))) pair {
-                      _.relativeTo(temporarySrc).map {
-                        haxeOutput / _.getPath
-                      }
-                    }
-                    IO.move(moveMapping)
-                    moveMapping.map {
-                      _._2
-                    }(collection.breakOut)
+                  projectPathFlags(
+                    haxeStreams,
+                    target,
+                    includes,
+                    scalaVersion.value,
+                    haxeConfiguration.name) ++
+                  (for {
+                    path <- (dependencyClasspath in injectConfiguration).value
+                    if path.data.exists
+                  } yield {
+                      Seq("-java-lib", path.data.toString)
+                    }).flatten ++
+                  Seq("-" + platformName,
+                    (haxeOutputPath in injectConfiguration).value.getOrElse(temporaryDirectory).getPath) ++
+                  (haxeMacros in injectConfiguration in haxe).??(Nil).value.flatMap { macroExpr =>
+                    Seq(
+                      "--macro",
+                      raw"""hamu.ExprEvaluator.parseAndEvaluate("${JSONFormat.quoteString(macroExpr)}")""")
+                  } ++
+                  (haxeOptions in injectConfiguration in haxe).value ++
+                  modules
+              (streams in haxeConfiguration).value.log.info(processBuilder.map(JSONFormat.quoteString).mkString("\"", "\" \"", "\""))
+              val logger = (streams in haxeConfiguration).value.log
+              IO.delete(haxeOutput)
+              class HaxeProcessLogger extends ProcessLogger {
+                def info(s: => String): Unit = {
+                  if (ErrorRegex.findAllIn(s).hasNext) {
+                    logger.error(s)
+                  } else {
+                    logger.info(s)
                   }
-                  case _ =>
-                    haxeOutput.get.toSet
+                }
+
+                def error(s: => String): Unit = {
+                  if (WarningRegex.findAllIn(s).hasNext) {
+                    logger.warn(s)
+                  } else {
+                    logger.error(s)
+                  }
+                }
+
+                def buffer[T](f: => T): T = f
+              }
+              val haxeLogger = new HaxeProcessLogger
+              processBuilder !< haxeLogger match {
+                case 0 => {
+                  (haxeConfiguration == HaxeJava || haxeConfiguration == TestHaxeJava) match {
+                    case true => {
+                      val temporarySrc = temporaryDirectory / "src"
+                      val moveMapping = (temporaryDirectory ** (globFilter("*.java"))) pair {
+                        _.relativeTo(temporarySrc).map {
+                          haxeOutput / _.getPath
+                        }
+                      }
+                      IO.move(moveMapping)
+                      moveMapping.map {
+                        _._2
+                      }(collection.breakOut)
+                    }
+                    case _ =>
+                      haxeOutput.get.toSet
+                  }
+                }
+                case result => {
+                  throw new MessageOnlyException("Haxe returns " + result)
                 }
               }
-              case result => {
-                throw new MessageOnlyException("Haxe returns " + result)
-              }
+            } else {
+              Set()
             }
           }
         }
