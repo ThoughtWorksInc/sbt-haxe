@@ -116,7 +116,7 @@ final object BaseHaxePlugin extends AutoPlugin {
             name.?.value.map("name" -> _),
             homepage.value.map("url" -> _.toString),
             licenses.?.value.flatMap(_.unzip._1.headOption.map("license" -> _)),
-            haxelibTags.?.value.map("tags" -> _),
+            Some("tags" -> JSONArray(haxelibTags.value.toList)),
             description.?.value.map("description" -> _),
             version.?.value.map("version" -> _),
             haxelibReleaseNote.?.value.map("releasenote" -> _),
@@ -156,15 +156,16 @@ final object BaseHaxePlugin extends AutoPlugin {
         }
       )
 
-  override final def globalSettings =
-    super.globalSettings ++ Seq(
-      haxelibDependencies := Map(),
-      haxeExtraParams := Seq(),
-      haxeOptions := Nil,
-      haxeMacros := Nil,
-      haxeXmls := Nil,
-      haxeCommand := "haxe",
-      haxelibCommand := "haxelib")
+  override final def globalSettings = Seq(
+    haxelibTags := Seq(),
+    haxelibDependencies := Map(),
+    haxeExtraParams := Seq(),
+    haxeOptions := Nil,
+    haxeMacros := Nil,
+    haxeXmls := Nil,
+    haxeCommand := "haxe",
+    haxelibCommand := "haxelib"
+  )
 
   final val HaxeUnit = new TestFramework("com.qifun.sbtHaxe.testInterface.HaxeUnitFramework")
 

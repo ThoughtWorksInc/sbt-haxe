@@ -48,7 +48,7 @@ trait HaxeKeys {
 
   final val haxelibReleaseNote = SettingKey[String]("haxelib-release-note", "The release note in haxelib.json")
 
-  final val haxelibTags = SettingKey[String]("haxelib-tags", "Tags in haxelib.json")
+  final val haxelibTags = SettingKey[Seq[String]]("haxelib-tags", "Tags in haxelib.json")
 
   final val haxelibDependencies = SettingKey[Map[String, DependencyVersion]]("haxelib-dependencies", "Additional dependencies in haxelib.json")
 
