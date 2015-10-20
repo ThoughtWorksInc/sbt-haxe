@@ -19,7 +19,7 @@ package com.thoughtworks.microbuilder.sbtHaxe
 
 import java.io.{PipedOutputStream, PipedInputStream}
 
-import com.qifun.sbtHaxe.DependencyVersion.{LastVersion, SpecificVersion}
+import DependencyVersion.{LastVersion, SpecificVersion}
 import sbt._
 import Keys._
 import sbt.plugins.JvmPlugin
