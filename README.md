@@ -1,20 +1,24 @@
-# sbt-haxe
+sbt-haxe
+========
 
-<div align="right"><a href="https://travis-ci.org/qifun/sbt-haxe"><img alt="Build Status" src="https://travis-ci.org/qifun/sbt-haxe.png?branch=master"/></a></div>
+<div align="right"><a href="https://travis-ci.org/ThoughtWorksInc/sbt-haxe"><img alt="Build Status" src="https://travis-ci.org/ThoughtWorksInc/sbt-haxe.png?branch=master"/></a></div>
 
 **sbt-haxe** is a [Sbt](http://www.scala-sbt.org/) plugin to compile [Haxe](http://www.haxe.org/) sources in Java/Scala projects.
 
-## Usage
+Usage
+-----
 
 ### Step 1: Install `sbt-haxe` into your project
 
 Add the following line to your `project/plugins.sbt`:
 
-    addSbtPlugin("com.qifun" % "sbt-haxe" % "1.4.1")
+```
+addSbtPlugin("com.thoughtworks.microbuilder" % "sbt-haxe" % "1.4.1")
+```
 
 ### Step 2: Put your Haxe sources at `src/haxe/yourPackage/YourHaxeClass.hx`
 
-``` haxe
+```haxe
 package yourPackage;
 import haxe.ds.Vector;
 class YourHaxeClass
@@ -40,29 +44,33 @@ YourHaxeClass.hx:7: Hello, World!
 [success] Total time: 1 s, completed 2014-7-25 10:00:23
 ```
 
-## Targets supported
+Targets supported
+-----------------
+
 Currently `sbt-haxe` supports all [targets that haxe supported](http://haxe.org/manual/target-details.html), but all of them are disabled by default except `java`. If you want to compile to specific target other than `java`, you need to enable it manually in `build.sbt`.
 
 And here's a [sbt-haxe-sample](https://github.com/new-cbs/sbt-haxe-sample) project to show how to use them.
 
-- JavaScript `enablePlugins(HaxeJsPlugin)`
-- PHP `enablePlugins(HaxePhpPlugin)`
-- Neko `enablePlugins(HaxeNekoPlugin)`
-- C# `enablePlugins(HaxeCSharpPlugin)`
-- Python `enablePlugins(HaxePythonPlugin)`
-- C++ `enablePlugins(HaxeCppPlugin)`
-- Flash `enablePlugins(HaxeFlashPlugin)`
-- ActionScript 3 `enablePlugins(HaxeAs3Plugin)`
+-	JavaScript `enablePlugins(HaxeJsPlugin)`
+-	PHP `enablePlugins(HaxePhpPlugin)`
+-	Neko `enablePlugins(HaxeNekoPlugin)`
+-	C# `enablePlugins(HaxeCSharpPlugin)`
+-	Python `enablePlugins(HaxePythonPlugin)`
+-	C++ `enablePlugins(HaxeCppPlugin)`
+-	Flash `enablePlugins(HaxeFlashPlugin)`
+-	ActionScript 3 `enablePlugins(HaxeAs3Plugin)`
 
-## Tasks and settings
+Tasks and settings
+------------------
 
 `sbt-haxe` provides following tasks and settings:
 
- * haxe
- * haxe:doc
+-	haxe
+-	haxe:doc
 
 See [src/main/scala/com/qifun/sbtHaxe/HaxePlugin.scala](https://github.com/Atry/sbt-haxe/blob/master/src/main/scala/com/qifun/sbtHaxe/HaxeKeys.scala) for more information.
 
-## Dependencies
+Dependencies
+------------
 
 `sbt-haxe` requires Sbt 0.13, Haxe 3.1, [hxjava](http://lib.haxe.org/p/hxjava) 3.1.0 and [Dox](http://lib.haxe.org/p/dox) 1.0.0.

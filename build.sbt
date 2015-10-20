@@ -2,7 +2,7 @@ sbtPlugin := true
 
 name := "sbt-haxe"
 
-organization := "com.qifun"
+organization := "com.thoughtworks.microbuilder"
 
 releaseUseGlobalVersion := false
 
@@ -12,7 +12,7 @@ scalacOptions += "-feature"
 
 description := "A Sbt plugin used to compile Haxe sources in Java/Scala projects."
 
-homepage := Some(url("https://github.com/qifun/sbt-haxe"))
+homepage := Some(url("https://github.com/ThoughtWorksInc/sbt-haxe"))
 
 startYear := Some(2014)
 

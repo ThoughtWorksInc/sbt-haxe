@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.qifun.sbtHaxe
+package com.thoughtworks.microbuilder.sbtHaxe
 
 sealed trait DependencyVersion
 
