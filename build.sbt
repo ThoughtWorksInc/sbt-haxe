@@ -48,18 +48,17 @@ scmInfo := Some(ScmInfo(
   "scm:git:https://bitbucket.org/qforce/ai-demo.git",
   Some("scm:git:git@bitbucket.org:qforce/sbt-haxe.git")))
 
-pomExtra :=
-  <developers>
-    <developer>
-      <id>chank</id>
-      <name>方里权</name>
-      <timezone>+8</timezone>
-      <email>fangliquan@qq.com</email>
-    </developer>
-    <developer>
-      <id>Atry</id>
-      <name>杨博</name>
-      <timezone>+8</timezone>
-      <email>pop.atry@gmail.com</email>
-    </developer>
-  </developers>
+developers := List(
+  Developer(
+    "chank",
+    "方里权",
+    "fangliquan@qq.com",
+    url("https://github.com/chank")
+  ),
+  Developer(
+    "Atry",
+    "杨博 (Yang Bo)",
+    "pop.atry@gmail.com",
+    url("https://github.com/Atry")
+  )
+)
