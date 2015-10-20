@@ -1,13 +1,13 @@
 /*
  * sbt-haxe
  * Copyright 2014 深圳岂凡网络有限公司 (Shenzhen QiFun Network Corp., LTD)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.qifun.sbtHaxe
+package com.thoughtworks.microbuilder.sbtHaxe
 
 import sbt._
 import java.io.File
@@ -37,15 +37,15 @@ trait HaxeKeys {
   final val haxeXml = TaskKey[Seq[File]]("haxeXml", "Generate Haxe xml.")
 
 
-  type DependencyVersion = com.qifun.sbtHaxe.DependencyVersion
-  val DependencyVersion = com.qifun.sbtHaxe.DependencyVersion
+  type DependencyVersion = com.thoughtworks.microbuilder.sbtHaxe.DependencyVersion
+  val DependencyVersion = com.thoughtworks.microbuilder.sbtHaxe.DependencyVersion
 
   val haxelibContributors = SettingKey[Seq[String]]("haxelib-contributors", "Contributors in haxelib.json")
 
   val haxelibSubmitContributorIndex = SettingKey[Int]("haxelib-submit-contributor-index", "The index in haxelib-contributors that indicates the username for `haxelib submit`")
 
   val haxelibSubmitPassword = SettingKey[String]("haxelib-submit-password", "The password for `haxelib submit`")
-  
+
   val haxelibReleaseNote = SettingKey[String]("haxelib-release-note", "The release note in haxelib.json")
 
   val haxelibTags = SettingKey[String]("haxelib-tags", "Tags in haxelib.json")
