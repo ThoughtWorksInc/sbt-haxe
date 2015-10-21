@@ -57,6 +57,36 @@ final object BaseHaxePlugin extends AutoPlugin {
       SbtHaxe.docSetting(Haxe, Compile) ++
       SbtHaxe.docSetting(TestHaxe, Test) ++
       Seq(
+        haxelibInstallDependencies := {
+          for ((lib, version) <- haxelibDependencies.value) {
+            val logger = (streams in haxelibInstallDependencies).value.log
+            val processHaxelibInstall = version match {
+              case SpecificVersion(specificVersion) => {
+                Seq(
+                  haxelibCommand.value,
+                  "install",
+                  lib,
+                  specificVersion,
+                  "--always"
+                )
+              }
+              case LastVersion => {
+                Seq(
+                  haxelibCommand.value,
+                  "install",
+                  lib,
+                  "--always"
+                )
+              }
+            }
+            logger.info(processHaxelibInstall.mkString("\"", "\" \"", "\""))
+            processHaxelibInstall !< logger match {
+              case 0 =>
+              case result =>
+                throw new MessageOnlyException("Failed to install local haxelib: " + result)
+            }
+          }
+        },
         publish in Haxe := {
           val logger = (streams in publish in Haxe).value.log
           val contributors = haxelibContributors.value

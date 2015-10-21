@@ -52,6 +52,8 @@ trait HaxeKeys {
 
   final val haxelibDependencies = SettingKey[Map[String, DependencyVersion]]("haxelib-dependencies", "Additional dependencies in haxelib.json")
 
+  final val haxelibInstallDependencies = TaskKey[Unit]("haxelib-install-dependencies", "Install additional dependencies in haxelib.json")
+
   final val haxelibJson = SettingKey[JSONObject]("haxelib-json", "The file content of haxelib.json")
 
   final val makeHaxelibJson = TaskKey[File]("make-haxelib-json", "Create haxelib.json")
