@@ -58,7 +58,7 @@ final object BaseHaxePlugin extends AutoPlugin {
       SbtHaxe.docSetting(TestHaxe, Test) ++
       Seq(
         publish in Haxe := {
-          val logger = (streams in publishLocal in Haxe).value.log
+          val logger = (streams in publish in Haxe).value.log
           val contributors = haxelibContributors.value
           val username = haxelibSubmitUsername.?.value match {
             case None => {
