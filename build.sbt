@@ -36,13 +36,6 @@ releaseProcess := Seq[ReleaseStep](
   pushChanges
 )
 
-publishTo <<= (isSnapshot) { isSnapshot: Boolean =>
-  if (isSnapshot)
-    Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-  else
-    Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-}
-
 scmInfo := Some(ScmInfo(
   url("https://bitbucket.org/qforce/sbt-haxe"),
   "scm:git:https://bitbucket.org/qforce/ai-demo.git",
