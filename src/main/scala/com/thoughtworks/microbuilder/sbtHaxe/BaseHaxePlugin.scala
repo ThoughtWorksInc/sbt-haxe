@@ -170,7 +170,7 @@ final object BaseHaxePlugin extends AutoPlugin {
           if (parameters.isEmpty) {
             None
           } else {
-            val content = haxeExtraParams.value.mkString("\"", "\"\n\"", "\"")
+            val content = haxeExtraParams.value.mkString("\n")
             val file = (sourceManaged in Haxe).value / "extraParams.hxml"
             if (!file.exists || content != IO.read(file, scala.io.Codec.UTF8.charSet)) {
               IO.write(file, content, scala.io.Codec.UTF8.charSet)
