@@ -69,12 +69,7 @@ final object SbtHaxe {
                     includes,
                     scalaVersion.value,
                     haxeConfiguration.name) ++
-                  (for {
-                    path <- (dependencyClasspath in injectConfiguration).value
-                    if path.data.exists
-                  } yield {
-                      Seq("-java-lib", path.data.toString)
-                    }).flatten ++
+                  (haxeNativeDependencyOptions in injectConfiguration).value ++
                   Seq("-" + platformName,
                     (haxeOutputPath in injectConfiguration).value.getOrElse(temporaryDirectory).getPath) ++
                   (haxeMacros in injectConfiguration in haxe).??(Nil).value.flatMap { macroExpr =>
@@ -178,12 +173,7 @@ final object SbtHaxe {
                 includes,
                 scalaVersion.value,
                 haxeConfiguration.name) ++
-              (for {
-                path <- (dependencyClasspath in injectConfiguration).value
-                if path.data.exists
-              } yield {
-                  Seq("-java-lib", path.data.toString)
-                }).flatten ++
+              (haxeNativeDependencyOptions in injectConfiguration).value ++
               haxeModules(in, (sourceDirectories in haxeConfiguration).value)
           haxeStreams.log.info(processBuilderXml.mkString("\"", "\" \"", "\""))
           processBuilderXml !< logger match {

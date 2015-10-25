@@ -193,6 +193,7 @@ final object BaseHaxePlugin extends AutoPlugin {
     haxeOptions := Nil,
     haxeMacros := Nil,
     haxeXmls := Nil,
+    haxeNativeDependencyOptions := Nil,
     haxeCommand := "haxe",
     haxelibCommand := "haxelib"
   )

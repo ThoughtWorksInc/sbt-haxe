@@ -32,6 +32,15 @@ final object HaxeJavaPlugin extends AutoPlugin {
 
   override final def trigger = allRequirements
 
+  private def javaLibOptions(injectConfiguration: Configuration) = {
+    haxeNativeDependencyOptions in injectConfiguration := (for {
+      path <- (dependencyClasspath in injectConfiguration).value
+      if path.data.exists
+    } yield {
+        Seq(s"-${(haxePlatformName in injectConfiguration).value}-lib", path.data.toString)
+      }).flatten
+  }
+
   override final lazy val projectSettings: Seq[Setting[_]] =
     sbt.addArtifact(artifact in packageBin in HaxeJava, packageBin in HaxeJava) ++
       inConfig(HaxeJava)(SbtHaxe.baseHaxeSettings) ++
@@ -41,6 +50,8 @@ final object HaxeJavaPlugin extends AutoPlugin {
       SbtHaxe.injectSettings(HaxeJava, Compile) ++
       SbtHaxe.injectSettings(TestHaxeJava, Test) ++
       Seq(
+        javaLibOptions(Compile),
+        javaLibOptions(Test),
         haxeXmls in Compile ++= (haxeXml in Compile).value,
         haxeXmls in Test ++= (haxeXml in Test).value,
         haxePlatformName in Compile := "java",

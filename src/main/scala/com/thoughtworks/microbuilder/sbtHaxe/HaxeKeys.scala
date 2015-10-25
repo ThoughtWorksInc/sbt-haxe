@@ -61,6 +61,8 @@ trait HaxeKeys {
   final val haxeExtraParams = SettingKey[Seq[String]]("haxe-extra-params", "The extra haxe flags in extraParams.hxml")
 
   final val makeExtraParamsHxml = TaskKey[Option[File]]("make-extra-params-hxml", "Create extraParams.hxml")
+
+  final val haxeNativeDependencyOptions = TaskKey[Seq[String]]("haxe-native-dependency-options", "-java-lib or -net-lib options for Haxe compiler.")
 }
 
 final object HaxeKeys extends HaxeKeys
