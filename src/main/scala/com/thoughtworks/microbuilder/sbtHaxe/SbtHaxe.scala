@@ -68,7 +68,8 @@ final object SbtHaxe {
                     target,
                     includes,
                     scalaVersion.value,
-                    haxeConfiguration.name) ++
+                    haxeConfiguration.name,
+                    makeExtraParamsHxml.value) ++
                   (haxeNativeDependencyOptions in injectConfiguration).value ++
                   Seq("-" + platformName,
                     (haxeOutputPath in injectConfiguration).value.getOrElse(temporaryDirectory).getPath) ++
@@ -172,7 +173,8 @@ final object SbtHaxe {
                 target,
                 includes,
                 scalaVersion.value,
-                haxeConfiguration.name) ++
+                haxeConfiguration.name,
+                makeExtraParamsHxml.value) ++
               (haxeNativeDependencyOptions in injectConfiguration).value ++
               haxeModules(in, (sourceDirectories in haxeConfiguration).value)
           haxeStreams.log.info(processBuilderXml.mkString("\"", "\" \"", "\""))
@@ -292,7 +294,8 @@ final object SbtHaxe {
                                       targetDirectory: RichFile,
                                       depsClasspath: Seq[Attributed[File]],
                                       scalaVersion: String,
-                                      configurationName: String): Seq[String] = {
+                                      configurationName: String,
+                                      currentExtraParamsHxml: Option[File]): Seq[String] = {
     val unpack = FileFunction.cached(
       targetDirectory / (configurationName + "_unpacked-haxe-cache"),
       inStyle = FilesInfo.lastModified,
@@ -308,9 +311,9 @@ final object SbtHaxe {
     val unpacked = unpack(unpacking.map {
       _.data
     }(collection.breakOut))
-    val directories = (for {
+    val directories = ((for {
       haxeJar <- unpacking
-    } yield targetDirectory / (configurationName + "_unpacked-haxe") / haxeJar.data.getName) ++ rawIncludes.map(_.data)
+    } yield targetDirectory / (configurationName + "_unpacked-haxe") / haxeJar.data.getName) ++ rawIncludes.map(_.data)).distinct
     val dependSources = (for {
       dep <- directories
       if dep.exists
@@ -319,8 +322,8 @@ final object SbtHaxe {
       dep <- directories
       extraParamsHxmlFile = dep / "extraParams.hxml"
       if extraParamsHxmlFile.exists
-    } yield extraParamsHxmlFile.getPath
-    dependSources ++ extraParamsHxmls
+    } yield extraParamsHxmlFile
+    dependSources ++ (extraParamsHxmls ++ currentExtraParamsHxml).distinct.map(_.getPath)
   }
 
   /**
