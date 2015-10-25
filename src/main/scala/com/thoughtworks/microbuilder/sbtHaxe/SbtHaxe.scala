@@ -80,7 +80,7 @@ final object SbtHaxe {
                   } ++
                   (haxeOptions in injectConfiguration in haxe).value ++
                   modules
-              (streams in haxeConfiguration).value.log.info(processBuilder.map(JSONFormat.quoteString).mkString("\"", "\" \"", "\""))
+              (streams in haxeConfiguration).value.log.info(processBuilder.mkString("\"", "\" \"", "\""))
               val logger = (streams in haxeConfiguration).value.log
               IO.delete(haxeOutput)
               class HaxeProcessLogger extends ProcessLogger {
