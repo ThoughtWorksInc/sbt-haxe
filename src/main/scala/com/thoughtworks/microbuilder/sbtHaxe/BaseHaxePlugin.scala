@@ -57,7 +57,7 @@ final object BaseHaxePlugin extends AutoPlugin {
       SbtHaxe.docSetting(Haxe, Compile) ++
       SbtHaxe.docSetting(TestHaxe, Test) ++
       Seq(
-        haxelibInstallDependencies := {
+        haxelibInstallDependencies <<= Def.task {
           for ((lib, version) <- haxelibDependencies.value) {
             val logger = (streams in haxelibInstallDependencies).value.log
             val processHaxelibInstall = version match {
@@ -83,10 +83,12 @@ final object BaseHaxePlugin extends AutoPlugin {
             processHaxelibInstall !< logger match {
               case 0 =>
               case result =>
-                throw new MessageOnlyException("Failed to install local haxelib: " + result)
+                throw new MessageOnlyException(
+                  raw"""Unexpected return value $result for
+  ${processHaxelibInstall.mkString("\"", "\" \"", "\"")}""")
             }
           }
-        },
+        } tag SbtHaxe.HaxelibLock,
         publish in Haxe := {
           val logger = (streams in publish in Haxe).value.log
           val contributors = haxelibContributors.value
@@ -122,10 +124,12 @@ final object BaseHaxePlugin extends AutoPlugin {
           processHaxelibSubmit !< logger match {
             case 0 =>
             case result =>
-              throw new MessageOnlyException("Failed to submit to haxelib: " + result)
+              throw new MessageOnlyException(
+                raw"""Unexpected return value $result for
+  ${processHaxelibSubmit.mkString("\"", "\" \"", "\"")}""")
           }
         },
-        publishLocal in Haxe := {
+        publishLocal in Haxe <<= Def.task {
           val logger = (streams in publishLocal in Haxe).value.log
           val processHaxelibLocal = Seq(
             haxelibCommand.value,
@@ -137,9 +141,11 @@ final object BaseHaxePlugin extends AutoPlugin {
           processHaxelibLocal !< logger match {
             case 0 =>
             case result =>
-              throw new MessageOnlyException("Failed to install local haxelib: " + result)
+              throw new MessageOnlyException(
+                raw"""Unexpected return value $result for
+  ${processHaxelibLocal.mkString("\"", "\" \"", "\"")}""")
           }
-        },
+        } tag SbtHaxe.HaxelibLock,
         haxelibContributors := developers.value.map(_.id),
         haxelibJson := JSONObject(Map(
           Seq(
@@ -187,6 +193,7 @@ final object BaseHaxePlugin extends AutoPlugin {
       )
 
   override final def globalSettings = Seq(
+    concurrentRestrictions += Tags.limit(SbtHaxe.HaxelibLock, 1),
     haxelibTags := Seq(),
     haxelibDependencies := Map(),
     haxeExtraParams := Seq(),

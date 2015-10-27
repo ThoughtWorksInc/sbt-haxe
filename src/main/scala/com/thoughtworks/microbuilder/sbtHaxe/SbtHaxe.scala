@@ -27,13 +27,15 @@ import scala.util.parsing.json.{JSONArray, JSONObject, JSONFormat}
 
 final object SbtHaxe {
 
-  private lazy val HaxeFileRegex = """^(.*)\.hx$""".r
+  final val HaxelibLock = Tags.Tag("haxelib-lock")
 
-  private lazy val WarningRegex = """^(.*)\s:\sWarning\s:\s(.*)$""".r
+  private val HaxeFileRegex = """^(.*)\.hx$""".r
 
-  private lazy val ErrorRegex = """^(.*):\serror\sCS(.*):\s(.*)$""".r
+  private val WarningRegex = """^(.*)\s:\sWarning\s:\s(.*)$""".r
 
-  private lazy val CSharpUnitTestErrorRegex = """(^ERR:\s(.*)$)|(^FAILED\s(\d)*\stests,(.*)$)|(^Called\sfrom(.*)$)""".r
+  private val ErrorRegex = """^(.*):\serror\sCS(.*):\s(.*)$""".r
+
+  private val CSharpUnitTestErrorRegex = """(^ERR:\s(.*)$)|(^FAILED\s(\d)*\stests,(.*)$)|(^Called\sfrom(.*)$)""".r
 
   private final def haxeSetting(
                                  haxeConfiguration: Configuration,
@@ -123,7 +125,9 @@ final object SbtHaxe {
                   }
                 }
                 case result => {
-                  throw new MessageOnlyException("Haxe returns " + result)
+                  throw new MessageOnlyException(
+                    raw"""Unexpected return value $result for
+  ${processBuilder.mkString("\"", "\" \"", "\"")}""")
                 }
               }
             } else {
@@ -182,7 +186,9 @@ final object SbtHaxe {
             case 0 =>
               haxeStreams.log.debug(raw"Generate $doxPlatform.xml success!")
             case result =>
-              throw new MessageOnlyException(raw"Generate $doxPlatform.xml fail: " + result)
+              throw new MessageOnlyException(
+                raw"""Unexpected return value $result for
+  ${processBuilderXml.mkString("\"", "\" \"", "\"")}""")
           }
           Seq[File]().toSet + xmlFile
         }
@@ -219,7 +225,9 @@ final object SbtHaxe {
               globFilter("*.ico"))).get
           doxOutputDirectory
         case result =>
-          throw new MessageOnlyException("Haxe create doc exception: " + result)
+          throw new MessageOnlyException(
+            raw"""Unexpected return value $result for
+  ${processBuildDoc.mkString("\"", "\" \"", "\"")}""")
       }
     }.dependsOn(haxeXmls in injectConfiguration)
   }
@@ -251,7 +259,9 @@ final object SbtHaxe {
           case 0 =>
             logger.debug(raw"Excecute ${exe.getPath} success!")
           case result =>
-            throw new MessageOnlyException("Test csharp exception: " + result)
+            throw new MessageOnlyException(
+              raw"""Unexpected return value $result for
+  ${exe.getPath}""")
         }
       }
     }.dependsOn(haxe in injectConfiguration)
