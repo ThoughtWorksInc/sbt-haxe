@@ -18,3 +18,7 @@ script:
 before_cache:
   - find $HOME/.sbt -name '*.lock' | xargs rm
   - find $HOME/.ivy2 -name 'ivydata-*.properties' | xargs rm
+
+env:
+  matrix:
+    - SBT_COMMAND=test
