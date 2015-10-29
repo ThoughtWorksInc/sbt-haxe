@@ -126,8 +126,7 @@ final object SbtHaxe {
                 }
                 case result => {
                   throw new MessageOnlyException(
-                    raw"""Unexpected return value $result for
-  ${processBuilder.mkString("\"", "\" \"", "\"")}""")
+                    raw"""Unexpected return value $result when compiling Haxe sources.""")
                 }
               }
             } else {
@@ -186,9 +185,7 @@ final object SbtHaxe {
             case 0 =>
               haxeStreams.log.debug(raw"Generate $doxPlatform.xml success!")
             case result =>
-              throw new MessageOnlyException(
-                raw"""Unexpected return value $result for
-  ${processBuilderXml.mkString("\"", "\" \"", "\"")}""")
+              throw new MessageOnlyException( raw"""Unexpected return value $result when generating $xmlFile.""")
           }
           Seq[File]().toSet + xmlFile
         }
