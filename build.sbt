@@ -37,9 +37,9 @@ releaseProcess := Seq[ReleaseStep](
 )
 
 scmInfo := Some(ScmInfo(
-  url("https://bitbucket.org/qforce/sbt-haxe"),
-  "scm:git:https://bitbucket.org/qforce/ai-demo.git",
-  Some("scm:git:git@bitbucket.org:qforce/sbt-haxe.git")))
+  url(s"https://github.com/ThoughtWorksInc/${name.value}"),
+  s"scm:git:git://github.com/ThoughtWorksInc/${name.value}.git",
+  Some(s"scm:git:git@github.com:ThoughtWorksInc/${name.value}.git")))
 
 developers := List(
   Developer(
