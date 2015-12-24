@@ -204,27 +204,28 @@ final object SbtHaxe {
       (streams in injectConfiguration).value.log.info("Generating haxe document...")
       val logger = (streams in injectConfiguration).value.log
       val haxeXmlDirectory = (Keys.target in haxeXml).value
-
-      val processBuildDoc =
-        Seq[String](
-          (haxelibCommand in injectConfiguration).value,
-          "run", "dox", "--input-path", haxeXmlDirectory.toString,
-          "--output-path", doxOutputDirectory.getPath.toString) ++
-          (doxRegex in injectConfiguration).value
-      logger.info(processBuildDoc.mkString("\"", "\" \"", "\""))
-      processBuildDoc !< logger match {
-        case 0 =>
-          (doxOutputDirectory ** (
-            globFilter("*.html") ||
-              globFilter("*.css") ||
-              globFilter("*.js") ||
-              globFilter("*.png") ||
-              globFilter("*.ico"))).get
-          doxOutputDirectory
-        case result =>
-          throw new MessageOnlyException(
-            raw"""Unexpected return value $result for
-  ${processBuildDoc.mkString("\"", "\" \"", "\"")}""")
+      if (haxeXmlDirectory.exists) {
+        val processBuildDoc =
+          Seq[String](
+            (haxelibCommand in injectConfiguration).value,
+            "run", "dox", "--input-path", haxeXmlDirectory.toString,
+            "--output-path", doxOutputDirectory.getPath.toString) ++
+            (doxRegex in injectConfiguration).value
+        logger.info(processBuildDoc.mkString("\"", "\" \"", "\""))
+        processBuildDoc !< logger match {
+          case 0 =>
+            (doxOutputDirectory ** (
+              globFilter("*.html") ||
+                globFilter("*.css") ||
+                globFilter("*.js") ||
+                globFilter("*.png") ||
+                globFilter("*.ico"))).get
+            doxOutputDirectory
+          case result =>
+            throw new MessageOnlyException(
+              raw"""Unexpected return value $result for
+    ${processBuildDoc.mkString("\"", "\" \"", "\"")}""")
+        }
       }
     }.dependsOn(haxeXmls in injectConfiguration)
   }
