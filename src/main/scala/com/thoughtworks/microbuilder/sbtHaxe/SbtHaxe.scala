@@ -226,6 +226,8 @@ final object SbtHaxe {
               raw"""Unexpected return value $result for
     ${processBuildDoc.mkString("\"", "\" \"", "\"")}""")
         }
+      } else {
+        doxOutputDirectory
       }
     }.dependsOn(haxeXmls in injectConfiguration)
   }
