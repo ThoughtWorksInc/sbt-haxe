@@ -214,12 +214,6 @@ final object SbtHaxe {
         logger.info(processBuildDoc.mkString("\"", "\" \"", "\""))
         processBuildDoc !< logger match {
           case 0 =>
-            (doxOutputDirectory ** (
-              globFilter("*.html") ||
-                globFilter("*.css") ||
-                globFilter("*.js") ||
-                globFilter("*.png") ||
-                globFilter("*.ico"))).get
             doxOutputDirectory
           case result =>
             throw new MessageOnlyException(
