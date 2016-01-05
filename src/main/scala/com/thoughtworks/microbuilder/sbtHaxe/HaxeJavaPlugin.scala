@@ -52,7 +52,7 @@ final object HaxeJavaPlugin extends AutoPlugin {
       (for {
         injectConfiguration <- Seq(Compile, Test)
         setting <- Seq(
-          haxePlatformName in c := "java",
+          haxePlatformName in injectConfiguration := "java",
           target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
           haxeOutputPath in injectConfiguration := None
         )
