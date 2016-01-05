@@ -39,13 +39,17 @@ object HaxeAs3Plugin extends AutoPlugin {
       inConfig(TestHaxeAs3)(SbtHaxe.extendTestSettings) ++
       SbtHaxe.injectSettings(HaxeAs3, As3) ++
       SbtHaxe.injectSettings(TestHaxeAs3, TestAs3) ++
+      (for {
+        injectConfiguration <- Seq(As3, TestAs3)
+        setting <- Seq(
+          haxePlatformName in injectConfiguration := "as3",
+          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
+          haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value)
+        )
+      } yield setting) ++
       Seq(
         haxeXmls in Compile ++= (haxeXml in As3).value,
         haxeXmls in Test ++= (haxeXml in TestAs3).value,
-        haxePlatformName in As3 := "as3",
-        haxePlatformName in TestAs3 := "as3",
-        haxeOutputPath in As3 := Some((target in haxe in As3).value),
-        haxeOutputPath in TestAs3 := Some((target in haxe in As3).value),
         doxRegex in Compile := SbtHaxe.buildDoxRegex((sourceDirectories in HaxeAs3).value),
         doxRegex in Test := SbtHaxe.buildDoxRegex((sourceDirectories in TestHaxeAs3).value),
         ivyConfigurations += Haxe,

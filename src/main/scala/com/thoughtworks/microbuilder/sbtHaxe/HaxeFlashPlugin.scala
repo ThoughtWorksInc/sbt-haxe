@@ -39,13 +39,17 @@ object HaxeFlashPlugin extends AutoPlugin {
       inConfig(TestHaxeFlash)(SbtHaxe.extendTestSettings) ++
       SbtHaxe.injectSettings(HaxeFlash, Flash) ++
       SbtHaxe.injectSettings(TestHaxeFlash, TestFlash) ++
+      (for {
+        injectConfiguration <- Seq(Flash, TestFlash)
+        setting <- Seq(
+          haxePlatformName in injectConfiguration := "swf",
+          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value / raw"""${name.value}.swf""",
+          haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value)
+        )
+      } yield setting) ++
       Seq(
         haxeXmls in Compile ++= (haxeXml in Flash).value,
         haxeXmls in Test ++= (haxeXml in TestFlash).value,
-        haxePlatformName in Flash := "swf",
-        haxePlatformName in TestFlash := "swf",
-        haxeOutputPath in Flash := Some(file((target in haxe in Flash).value.getPath + ".swf")),
-        haxeOutputPath in TestFlash := Some(file((target in haxe in Flash).value.getPath + ".swf")),
         doxRegex in Compile := SbtHaxe.buildDoxRegex((sourceDirectories in HaxeFlash).value),
         doxRegex in Test := SbtHaxe.buildDoxRegex((sourceDirectories in TestHaxeFlash).value),
         ivyConfigurations += Haxe,

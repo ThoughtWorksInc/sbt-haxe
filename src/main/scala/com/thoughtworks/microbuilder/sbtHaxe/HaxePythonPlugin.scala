@@ -39,13 +39,17 @@ object HaxePythonPlugin extends AutoPlugin {
       inConfig(TestHaxePython)(SbtHaxe.extendTestSettings) ++
       SbtHaxe.injectSettings(HaxePython, Python) ++
       SbtHaxe.injectSettings(TestHaxePython, TestPython) ++
+      (for {
+        injectConfiguration <- Seq(Python, TestPython)
+        setting <- Seq(
+          haxePlatformName in injectConfiguration := "python",
+          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value / raw"""${name.value}.py""",
+          haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value)
+        )
+      } yield setting) ++
       Seq(
         haxeXmls in Compile ++= (haxeXml in Python).value,
         haxeXmls in Test ++= (haxeXml in TestPython).value,
-        haxePlatformName in Python := "python",
-        haxePlatformName in TestPython := "python",
-        haxeOutputPath in Python := Some(file((target in haxe in Python).value.getPath + ".py")),
-        haxeOutputPath in TestPython := Some(file((target in haxe in Python).value.getPath + ".py")),
         doxRegex in Compile := SbtHaxe.buildDoxRegex((sourceDirectories in HaxePython).value),
         doxRegex in Test := SbtHaxe.buildDoxRegex((sourceDirectories in TestHaxePython).value),
         ivyConfigurations += Haxe,

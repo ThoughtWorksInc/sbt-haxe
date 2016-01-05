@@ -39,13 +39,17 @@ object HaxeNekoPlugin extends AutoPlugin {
       inConfig(TestHaxeNeko)(SbtHaxe.extendTestSettings) ++
       SbtHaxe.injectSettings(HaxeNeko, Neko) ++
       SbtHaxe.injectSettings(TestHaxeNeko, TestNeko) ++
+      (for {
+        injectConfiguration <- Seq(Neko, TestNeko)
+        setting <- Seq(
+          haxePlatformName in injectConfiguration := "neko",
+          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value / raw"""${name.value}.n""",
+          haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value)
+        )
+      } yield setting) ++
       Seq(
         haxeXmls in Compile ++= (haxeXml in Neko).value,
         haxeXmls in Test ++= (haxeXml in TestNeko).value,
-        haxePlatformName in Neko := "neko",
-        haxePlatformName in TestNeko := "neko",
-        haxeOutputPath in Neko := Some(file((target in haxe in Neko).value.getPath + ".n")),
-        haxeOutputPath in TestNeko := Some(file((target in haxe in Neko).value.getPath + ".n")),
         doxRegex in Compile := SbtHaxe.buildDoxRegex((sourceDirectories in HaxeNeko).value),
         doxRegex in Test := SbtHaxe.buildDoxRegex((sourceDirectories in TestHaxeNeko).value),
         ivyConfigurations += Haxe,

@@ -39,13 +39,17 @@ object HaxeCppPlugin extends AutoPlugin {
       inConfig(TestHaxeCpp)(SbtHaxe.extendTestSettings) ++
       SbtHaxe.injectSettings(HaxeCpp, Cpp) ++
       SbtHaxe.injectSettings(TestHaxeCpp, TestCpp) ++
+      (for {
+        injectConfiguration <- Seq(Cpp, TestCpp)
+        setting <- Seq(
+          haxePlatformName in injectConfiguration := "cpp",
+          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
+          haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value)
+        )
+      } yield setting) ++
       Seq(
         haxeXmls in Compile ++= (haxeXml in Cpp).value,
         haxeXmls in Test ++= (haxeXml in TestCpp).value,
-        haxePlatformName in Cpp := "cpp",
-        haxePlatformName in TestCpp := "cpp",
-        haxeOutputPath in Cpp := Some((target in haxe in Cpp).value),
-        haxeOutputPath in TestCpp := Some((target in haxe in Cpp).value),
         doxRegex in Compile := SbtHaxe.buildDoxRegex((sourceDirectories in HaxeCpp).value),
         doxRegex in Test := SbtHaxe.buildDoxRegex((sourceDirectories in TestHaxeCpp).value),
         ivyConfigurations += Haxe,

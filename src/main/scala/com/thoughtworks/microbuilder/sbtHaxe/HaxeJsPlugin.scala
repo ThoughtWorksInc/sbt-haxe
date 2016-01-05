@@ -23,8 +23,8 @@ import sbt.Keys._
 import sbt._
 
 /**
- * A Plugin used to compile Haxe sources to JavaScript sources.
- */
+  * A Plugin used to compile Haxe sources to JavaScript sources.
+  */
 object HaxeJsPlugin extends AutoPlugin {
 
   override final def requires = BaseHaxePlugin
@@ -39,13 +39,17 @@ object HaxeJsPlugin extends AutoPlugin {
       inConfig(TestHaxeJs)(SbtHaxe.extendTestSettings) ++
       SbtHaxe.injectSettings(HaxeJs, Js) ++
       SbtHaxe.injectSettings(TestHaxeJs, TestJs) ++
+      (for {
+        injectConfiguration <- Seq(Js, TestJs)
+        setting <- Seq(
+          haxePlatformName in injectConfiguration := "js",
+          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value / raw"""${name.value}.js""",
+          haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value)
+        )
+      } yield setting) ++
       Seq(
         haxeXmls in Compile ++= (haxeXml in Js).value,
         haxeXmls in Test ++= (haxeXml in TestJs).value,
-        haxePlatformName in Js := "js",
-        haxePlatformName in TestJs := "js",
-        haxeOutputPath in Js := Some(file((target in haxe in Js).value.getPath + ".js")),
-        haxeOutputPath in TestJs := Some(file((target in haxe in Js).value.getPath + ".js")),
         doxRegex in Compile := SbtHaxe.buildDoxRegex((sourceDirectories in HaxeJs).value),
         doxRegex in Test := SbtHaxe.buildDoxRegex((sourceDirectories in TestHaxeJs).value),
         ivyConfigurations += Haxe,

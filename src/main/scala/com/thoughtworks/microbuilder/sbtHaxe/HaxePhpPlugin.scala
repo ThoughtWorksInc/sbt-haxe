@@ -39,11 +39,17 @@ object HaxePhpPlugin extends AutoPlugin {
       inConfig(TestHaxePhp)(SbtHaxe.extendTestSettings) ++
       SbtHaxe.injectSettings(HaxePhp, Php) ++
       SbtHaxe.injectSettings(TestHaxePhp, TestPhp) ++
+      (for {
+        injectConfiguration <- Seq(Php, TestPhp)
+        setting <- Seq(
+          haxePlatformName in injectConfiguration := "php",
+          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
+          haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value)
+        )
+      } yield setting) ++
       Seq(
         haxeXmls in Compile ++= (haxeXml in Php).value,
         haxeXmls in Test ++= (haxeXml in TestPhp).value,
-        haxePlatformName in Php := "php",
-        haxePlatformName in TestPhp := "php",
         haxeOutputPath in Php := Some((target in haxe in Php).value),
         haxeOutputPath in TestPhp := Some((target in haxe in Php).value),
         doxRegex in Compile := SbtHaxe.buildDoxRegex((sourceDirectories in HaxePhp).value),

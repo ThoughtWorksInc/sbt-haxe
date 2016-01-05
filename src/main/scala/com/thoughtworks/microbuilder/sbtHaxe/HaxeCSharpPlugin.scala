@@ -41,15 +41,17 @@ final object HaxeCSharpPlugin extends AutoPlugin {
       SbtHaxe.injectSettings(TestHaxeCSharp, TestCSharp) ++
       SbtHaxe.csharpRunSettings(CSharp) ++
       SbtHaxe.csharpRunSettings(TestCSharp) ++
+      (for {
+        injectConfiguration <- Seq(CSharp, TestCSharp)
+        setting <- Seq(
+          haxePlatformName in injectConfiguration := "cs",
+          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
+          haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value)
+        )
+      } yield setting) ++
       Seq(
         haxeXmls in Compile ++= (haxeXml in CSharp).value,
         haxeXmls in Test ++= (haxeXml in TestCSharp).value,
-        haxePlatformName in CSharp := "cs",
-        // TODO (haxePlatformName in TestCSharp) should extend from (haxePlatformName in CSharp). 
-        // But now it doesn't work.
-        haxePlatformName in TestCSharp := "cs",
-        haxeOutputPath in CSharp := Some((target in haxe in CSharp).value),
-        haxeOutputPath in TestCSharp := Some((target in haxe in CSharp).value),
         doxRegex in Compile := SbtHaxe.buildDoxRegex((sourceDirectories in HaxeCSharp).value),
         doxRegex in Test := SbtHaxe.buildDoxRegex((sourceDirectories in TestHaxeCSharp).value),
         ivyConfigurations += Haxe,

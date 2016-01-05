@@ -49,13 +49,19 @@ final object HaxeJavaPlugin extends AutoPlugin {
       inConfig(TestHaxeJava)(SbtHaxe.extendTestSettings) ++
       SbtHaxe.injectSettings(HaxeJava, Compile) ++
       SbtHaxe.injectSettings(TestHaxeJava, Test) ++
+      (for {
+        injectConfiguration <- Seq(Compile, Test)
+        setting <- Seq(
+          haxePlatformName in c := "java",
+          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
+          haxeOutputPath in injectConfiguration := None
+        )
+      } yield setting) ++
       Seq(
         javaLibOptions(Compile),
         javaLibOptions(Test),
         haxeXmls in Compile ++= (haxeXml in Compile).value,
         haxeXmls in Test ++= (haxeXml in Test).value,
-        haxePlatformName in Compile := "java",
-        haxeOutputPath in Compile := None,
         haxeOptions in Compile ++= Seq("-D", "no-compilation"),
         doxRegex in Compile := SbtHaxe.buildDoxRegex((sourceDirectories in HaxeJava).value),
         doxRegex in Test := SbtHaxe.buildDoxRegex((sourceDirectories in TestHaxeJava).value),

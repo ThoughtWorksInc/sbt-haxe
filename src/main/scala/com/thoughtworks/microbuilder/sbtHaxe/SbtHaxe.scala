@@ -121,7 +121,11 @@ final object SbtHaxe {
                       }(collection.breakOut)
                     }
                     case _ =>
-                      haxeOutput.get.toSet
+                      if (haxeOutput.isDirectory) {
+                        haxeOutput.get.toSet
+                      } else {
+                        Set(haxeOutput)
+                      }
                   }
                 }
                 case result => {
@@ -458,11 +462,9 @@ final object SbtHaxe {
                                              haxeConfiguration: Configuration,
                                              injectConfiguration: Configuration) = {
     Seq(
-      target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
       target in haxeXml := (crossTarget in injectConfiguration).value / "haxe-xml",
       target in haxeXml in injectConfiguration :=
         (target in haxeXml).value / raw"${(haxePlatformName in injectConfiguration).value}.xml",
-      target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
       haxeSetting(haxeConfiguration, injectConfiguration),
       haxeOptions in injectConfiguration in haxe := (haxeOptions in injectConfiguration).value,
       haxeXmlSetting(haxeConfiguration, injectConfiguration),
