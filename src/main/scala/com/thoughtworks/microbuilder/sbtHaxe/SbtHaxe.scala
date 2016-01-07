@@ -17,7 +17,6 @@
 
 package com.thoughtworks.microbuilder.sbtHaxe
 
-import com.thoughtworks.microbuilder.sbtHaxe.DependencyVersion.{SpecificVersion, LastVersion}
 import sbt._
 import sbt.Keys._
 import com.thoughtworks.microbuilder.sbtHaxe.HaxeKeys._
