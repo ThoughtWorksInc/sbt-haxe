@@ -19,7 +19,7 @@ package com.thoughtworks.microbuilder.sbtHaxe
 
 import java.io.{PipedOutputStream, PipedInputStream}
 
-import DependencyVersion.{LastVersion, SpecificVersion}
+import com.thoughtworks.microbuilder.sbtHaxe.DependencyVersion.{GitVersion, LastVersion, SpecificVersion}
 import sbt._
 import Keys._
 import sbt.plugins.JvmPlugin
@@ -41,6 +41,8 @@ final object BaseHaxePlugin extends AutoPlugin {
       dependencies.flatMap {
         case (lib, LastVersion) =>
           Seq("-lib", lib)
+        case (lib, GitVersion(_, _, _)) =>
+          Seq("-lib", s"$lib:git")
         case (lib, SpecificVersion(version)) =>
           Seq("-lib", s"$lib:$version")
       }(collection.breakOut(Seq.canBuildFrom))
@@ -67,6 +69,17 @@ final object BaseHaxePlugin extends AutoPlugin {
                   "install",
                   lib,
                   specificVersion,
+                  "--always"
+                )
+              }
+              case GitVersion(url, branch, path) => {
+                Seq(
+                  haxelibCommand.value,
+                  "git",
+                  lib,
+                  url,
+                  branch,
+                  path,
                   "--always"
                 )
               }
@@ -159,6 +172,7 @@ final object BaseHaxePlugin extends AutoPlugin {
             Some("contributors" -> JSONArray(haxelibContributors.value.toList)),
             Some("dependencies" -> JSONObject(haxelibDependencies.value.mapValues {
               case LastVersion => ""
+              case GitVersion(_, _, _) => "git" // FIXME: Should follow the format in discussion of https://github.com/HaxeFoundation/haxelib/issues/238
               case SpecificVersion(v) => v
             }))
           ).flatten: _*

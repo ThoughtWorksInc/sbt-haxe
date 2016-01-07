@@ -25,4 +25,6 @@ object DependencyVersion {
 
   case class SpecificVersion(version: String) extends DependencyVersion
 
+  case class GitVersion(url: String, branch: String = "", path: String = "") extends DependencyVersion
+
 }
