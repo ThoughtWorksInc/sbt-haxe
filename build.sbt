@@ -55,3 +55,7 @@ developers := List(
     url("https://github.com/Atry")
   )
 )
+
+libraryDependencies += "org.apache.commons" % "commons-compress" % "1.2"
+
+libraryDependencies += "commons-io" % "commons-io" % "2.4"
