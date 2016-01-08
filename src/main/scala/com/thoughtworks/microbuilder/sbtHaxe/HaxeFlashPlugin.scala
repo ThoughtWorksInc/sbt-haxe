@@ -23,14 +23,15 @@ import sbt.Keys._
 import sbt._
 
 /**
- * A Plugin used to compile Haxe sources to Flash swf file.
- */
+  * A Plugin used to compile Haxe sources to Flash swf file.
+  */
 object HaxeFlashPlugin extends AutoPlugin {
 
   override final def requires = BaseHaxePlugin
 
   override final lazy val projectSettings: Seq[Setting[_]] = {
-    sbt.addArtifact(artifact in packageBin in HaxeFlash, packageBin in HaxeFlash) ++
+    super.projectSettings ++
+      sbt.addArtifact(artifact in packageBin in HaxeFlash, packageBin in HaxeFlash) ++
       inConfig(Flash)(SbtHaxe.baseHaxeSettings) ++
       inConfig(TestFlash)(SbtHaxe.baseHaxeSettings) ++
       inConfig(HaxeFlash)(SbtHaxe.baseHaxeSettings) ++

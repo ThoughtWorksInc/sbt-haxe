@@ -23,14 +23,15 @@ import sbt.Keys._
 import sbt._
 
 /**
- * A Plugin used to compile Haxe sources to Python sources.
- */
+  * A Plugin used to compile Haxe sources to Python sources.
+  */
 object HaxePythonPlugin extends AutoPlugin {
 
   override final def requires = BaseHaxePlugin
 
   override final lazy val projectSettings: Seq[Setting[_]] = {
-    sbt.addArtifact(artifact in packageBin in HaxePython, packageBin in HaxePython) ++
+    super.projectSettings ++
+      sbt.addArtifact(artifact in packageBin in HaxePython, packageBin in HaxePython) ++
       inConfig(Python)(SbtHaxe.baseHaxeSettings) ++
       inConfig(TestPython)(SbtHaxe.baseHaxeSettings) ++
       inConfig(HaxePython)(SbtHaxe.baseHaxeSettings) ++

@@ -23,14 +23,15 @@ import sbt.Keys._
 import sbt._
 
 /**
- * A Plugin used to compile Haxe sources to C++ sources.
- */
+  * A Plugin used to compile Haxe sources to C++ sources.
+  */
 object HaxeCppPlugin extends AutoPlugin {
 
   override final def requires = BaseHaxePlugin
 
   override final lazy val projectSettings: Seq[Setting[_]] = {
-    sbt.addArtifact(artifact in packageBin in HaxeCpp, packageBin in HaxeCpp) ++
+    super.projectSettings ++
+      sbt.addArtifact(artifact in packageBin in HaxeCpp, packageBin in HaxeCpp) ++
       inConfig(Cpp)(SbtHaxe.baseHaxeSettings) ++
       inConfig(TestCpp)(SbtHaxe.baseHaxeSettings) ++
       inConfig(HaxeCpp)(SbtHaxe.baseHaxeSettings) ++

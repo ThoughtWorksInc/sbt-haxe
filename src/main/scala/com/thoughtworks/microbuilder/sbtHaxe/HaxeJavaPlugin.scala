@@ -24,8 +24,8 @@ import HaxeConfigurations._
 import sbt.AutoPlugin
 
 /**
- * A Plugin used to compile Haxe sources to Java sources.
- */
+  * A Plugin used to compile Haxe sources to Java sources.
+  */
 final object HaxeJavaPlugin extends AutoPlugin {
 
   override final def requires = BaseHaxePlugin
@@ -37,12 +37,13 @@ final object HaxeJavaPlugin extends AutoPlugin {
       path <- (dependencyClasspath in injectConfiguration).value
       if path.data.exists
     } yield {
-        Seq(s"-${(haxePlatformName in injectConfiguration).value}-lib", path.data.toString)
-      }).flatten
+      Seq(s"-${(haxePlatformName in injectConfiguration).value}-lib", path.data.toString)
+    }).flatten
   }
 
   override final lazy val projectSettings: Seq[Setting[_]] =
-    sbt.addArtifact(artifact in packageBin in HaxeJava, packageBin in HaxeJava) ++
+    super.projectSettings ++
+      sbt.addArtifact(artifact in packageBin in HaxeJava, packageBin in HaxeJava) ++
       inConfig(HaxeJava)(SbtHaxe.baseHaxeSettings) ++
       inConfig(HaxeJava)(SbtHaxe.extendSettings) ++
       inConfig(TestHaxeJava)(SbtHaxe.baseHaxeSettings) ++

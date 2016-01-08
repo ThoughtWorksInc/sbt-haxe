@@ -30,7 +30,8 @@ object HaxeJsPlugin extends AutoPlugin {
   override final def requires = BaseHaxePlugin
 
   override final lazy val projectSettings: Seq[Setting[_]] = {
-    sbt.addArtifact(artifact in packageBin in HaxeJs, packageBin in HaxeJs) ++
+    super.projectSettings ++
+      sbt.addArtifact(artifact in packageBin in HaxeJs, packageBin in HaxeJs) ++
       inConfig(Js)(SbtHaxe.baseHaxeSettings) ++
       inConfig(TestJs)(SbtHaxe.baseHaxeSettings) ++
       inConfig(HaxeJs)(SbtHaxe.baseHaxeSettings) ++

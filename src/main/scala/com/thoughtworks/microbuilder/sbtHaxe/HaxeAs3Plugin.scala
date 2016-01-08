@@ -23,14 +23,15 @@ import sbt.Keys._
 import sbt._
 
 /**
- * A Plugin used to compile Haxe sources to Action Script 3 sources.
- */
+  * A Plugin used to compile Haxe sources to Action Script 3 sources.
+  */
 object HaxeAs3Plugin extends AutoPlugin {
 
   override final def requires = BaseHaxePlugin
 
   override final lazy val projectSettings: Seq[Setting[_]] = {
-    sbt.addArtifact(artifact in packageBin in HaxeAs3, packageBin in HaxeAs3) ++
+    super.projectSettings ++
+      sbt.addArtifact(artifact in packageBin in HaxeAs3, packageBin in HaxeAs3) ++
       inConfig(As3)(SbtHaxe.baseHaxeSettings) ++
       inConfig(TestAs3)(SbtHaxe.baseHaxeSettings) ++
       inConfig(HaxeAs3)(SbtHaxe.baseHaxeSettings) ++
