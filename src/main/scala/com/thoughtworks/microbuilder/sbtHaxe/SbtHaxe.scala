@@ -204,8 +204,8 @@ final object SbtHaxe {
       val target = (crossTarget in injectConfiguration).value
       val doxOutputDirectory = target / (injectConfiguration.name + "-dox")
 
-      (streams in injectConfiguration).value.log.info("Generating haxe document...")
       val logger = (streams in injectConfiguration).value.log
+      logger.info("Generating haxe document...")
       val haxeXmlDirectory = (Keys.target in haxeXml).value
       if (haxeXmlDirectory.exists) {
         val processBuildDoc =
