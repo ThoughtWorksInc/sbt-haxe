@@ -63,7 +63,7 @@ object HaxeJsNpmPlugin extends AutoPlugin {
           val Seq(jsFile) = (haxe in Js).value
           Seq(
             packageJsonFile -> "./package.json",
-            jsFile -> s"./${jsFile.getName}"
+            jsFile -> s"./index.js"
           )
         })) ++
       Seq(
