@@ -53,6 +53,12 @@ developers := List(
     "杨博 (Yang Bo)",
     "pop.atry@gmail.com",
     url("https://github.com/Atry")
+  ),
+  Developer(
+    "zhanglongyang",
+    "张龙洋",
+    "longyang.zhang@rea-group.com",
+    url("https://github.com/zhanglongyang")
   )
 )
 
