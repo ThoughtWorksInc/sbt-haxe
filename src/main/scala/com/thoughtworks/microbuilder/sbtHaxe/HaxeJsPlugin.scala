@@ -44,7 +44,7 @@ object HaxeJsPlugin extends AutoPlugin {
         injectConfiguration <- Seq(Js, TestJs)
         setting <- Seq(
           haxePlatformName in injectConfiguration := "js",
-          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value / raw"""${name.value}.js""",
+          target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value / "index.js",
           haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value)
         )
       } yield setting) ++
