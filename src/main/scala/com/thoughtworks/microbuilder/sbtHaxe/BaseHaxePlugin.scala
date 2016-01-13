@@ -172,7 +172,7 @@ final object BaseHaxePlugin extends AutoPlugin {
             Some("contributors" -> JSONArray(haxelibContributors.value.toList)),
             Some("dependencies" -> JSONObject(haxelibDependencies.value.mapValues {
               case LastVersion => ""
-              case GitVersion(_, _, _) => "git" // FIXME: Should follow the format in discussion of https://github.com/HaxeFoundation/haxelib/issues/238
+              case GitVersion(_, _, _) => "" // FIXME: Should follow the format in discussion of https://github.com/HaxeFoundation/haxelib/issues/238
               case SpecificVersion(v) => v
             }))
           ).flatten: _*
