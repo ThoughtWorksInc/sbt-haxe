@@ -12,6 +12,7 @@ git checkout "$TRAVIS_BRANCH" &&
 git config remote.origin.url git@github.com:"$TRAVIS_REPO_SLUG".git &&
 
 eval "$(ssh-agent -s)" &&
+chmod 600 ./secret/id_rsa &&
 ssh-add ./secret/id_rsa &&
 
 sbt "release with-defaults"
