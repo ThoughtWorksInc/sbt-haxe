@@ -1,13 +1,13 @@
 /*
  * sbt-haxe
  * Copyright 2014 深圳岂凡网络有限公司 (Shenzhen QiFun Network Corp., LTD)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -130,10 +130,13 @@ final object BaseHaxePlugin extends AutoPlugin {
             haxelibSubmitUsername.?.value.getOrElse(haxelibContributors.value(0))
           )
           val processHaxelibSubmit = haxelibSubmitPassword.?.value match {
-            case None => commandWithoutPassword
-            case Some(password) => commandWithoutPassword :+ password
+            case None =>
+              logger.info(commandWithoutPassword.mkString("\"", "\" \"", "\""))
+              commandWithoutPassword
+            case Some(password) =>
+              logger.info((commandWithoutPassword :+ "********").mkString("\"", "\" \"", "\""))
+              commandWithoutPassword :+ password
           }
-          logger.info(processHaxelibSubmit.mkString("\"", "\" \"", "\""))
           processHaxelibSubmit !< logger match {
             case 0 =>
             case result =>
