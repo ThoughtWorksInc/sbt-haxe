@@ -1,6 +1,5 @@
 #!/bin/bash
 
-travis_retry git clone --depth=1 $secret_git ./secret &&
 cat ./secret/sonatype.sbt >> ./local.sbt &&
 
 git log --max-count=1 --format=format:%an | xargs -0 -n 1 git config --global -- user.name &&

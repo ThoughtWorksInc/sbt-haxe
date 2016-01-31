@@ -23,6 +23,9 @@ env:
   matrix:
     - SBT_COMMAND=test
 
+before_deploy:
+  - travis_retry git clone --depth=1 $secret_git ./secret
+
 deploy:
   provider: script
   script: bash ./deploy.sh
