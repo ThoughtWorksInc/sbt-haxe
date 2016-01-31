@@ -32,4 +32,4 @@ deploy:
   on:
     condition: -e ./deploy.sh
     all_branches: true
-    jdk: oraclejdk7
+    jdk: openjdk7

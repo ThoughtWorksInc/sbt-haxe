@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 cat ./secret/sonatype.sbt >> ./local.sbt &&
 

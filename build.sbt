@@ -30,7 +30,6 @@ releaseProcess -= runClean
 
 releaseProcess -= runTest
 
-
 scmInfo := Some(ScmInfo(
   url(s"https://github.com/ThoughtWorksInc/${name.value}"),
   s"scm:git:git://github.com/ThoughtWorksInc/${name.value}.git",
