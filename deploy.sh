@@ -1,4 +1,4 @@
 #!/bin/bash
 
-source ./secret/before_deploy.sh
+source ./secret/git_config.sh
 sbt "release with-defaults"
