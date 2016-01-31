@@ -65,3 +65,9 @@ developers := List(
 libraryDependencies += "org.apache.commons" % "commons-compress" % "1.2"
 
 libraryDependencies += "commons-io" % "commons-io" % "2.4"
+
+pgpSecretRing := baseDirectory.value / "secret" / "secring.asc"
+
+pgpPublicRing := baseDirectory.value / "pubring.asc"
+
+pgpPassphrase := Some(Array.empty)
