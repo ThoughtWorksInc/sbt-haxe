@@ -22,7 +22,7 @@ import sbt.AutoPlugin
 object AllHaxePlugins extends AutoPlugin {
 
   override final def requires = {
-    HaxeAs3Plugin && HaxeCppPlugin && HaxeCSharpPlugin && HaxeFlashPlugin && HaxeJavaPlugin && HaxeJsPlugin && HaxeNekoPlugin && HaxePhpPlugin && HaxePythonPlugin
+    HaxeAs3Plugin && HaxeCppPlugin && HaxeCSharpPlugin && HaxeFlashPlugin && HaxeJavaPlugin && HaxeJsPlugin && HaxeNekoPlugin && HaxePhpPlugin && HaxePythonPlugin && HaxeJsNpmPlugin
   }
 
 }
