@@ -29,7 +29,7 @@ before_deploy:
 
 deploy:
   provider: script
-  script: ./deploy.sh
+  script: bash ./deploy.sh
   on:
     condition: -e ./deploy.sh
     all_branches: true
