@@ -21,18 +21,15 @@ licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/lice
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
 import ReleaseTransformations._
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  publishArtifacts,
-  setNextVersion,
-  commitNextVersion,
-  releaseStepCommand("sonatypeRelease"),
-  pushChanges
-)
+
+releaseProcess := {
+  releaseProcess.value.patch(releaseProcess.value.indexOf(pushChanges), Seq[ReleaseStep](releaseStepCommand("sonatypeRelease")), 0)
+}
+
+releaseProcess -= runClean
+
+releaseProcess -= runTest
+
 
 scmInfo := Some(ScmInfo(
   url(s"https://github.com/ThoughtWorksInc/${name.value}"),
