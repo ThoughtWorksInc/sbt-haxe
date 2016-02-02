@@ -69,7 +69,7 @@ Tasks and settings
 -	haxe:doc
 -	haxe:publish
 
-See [src/main/scala/com/qifun/sbtHaxe/HaxePlugin.scala](https://github.com/ThoughtWorksInc/sbt-haxe/blob/master/src/main/scala/com/thoughtworks/microbuilder/sbtHaxe/HaxeKeys.scala) for more information.
+See [HaxeKeys.scala](https://github.com/ThoughtWorksInc/sbt-haxe/blob/master/src/main/scala/com/thoughtworks/microbuilder/sbtHaxe/HaxeKeys.scala) for more information.
 
 Dependencies
 ------------
