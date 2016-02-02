@@ -13,7 +13,7 @@ Usage
 Add the following line to your `project/plugins.sbt`:
 
 ```
-addSbtPlugin("com.thoughtworks.microbuilder" % "sbt-haxe" % "2.0.0")
+addSbtPlugin("com.thoughtworks.microbuilder" % "sbt-haxe" % "3.0.8")
 ```
 
 ### Step 2: Put your Haxe sources at `src/haxe/yourPackage/YourHaxeClass.hx`
