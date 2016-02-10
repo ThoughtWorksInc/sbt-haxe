@@ -252,7 +252,12 @@ final object SbtHaxe {
       }
       val testLogger = new TestProcessLogger
       for (exe <- (exeDirectory ** (globFilter("*.exe"))).get) {
-        exe.getPath !< testLogger match {
+        val commandLine = if(sys.props("os.name").toLowerCase.indexOf("win") >= 0) {
+          Seq(exe.getPath)
+        } else {
+          Seq("mono", exe.getPath)
+        }
+        commandLine !< testLogger match {
           case 0 =>
             logger.debug(raw"Excecute ${exe.getPath} success!")
           case result =>
