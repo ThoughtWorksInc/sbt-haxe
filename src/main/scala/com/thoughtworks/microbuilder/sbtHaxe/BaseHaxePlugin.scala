@@ -141,8 +141,7 @@ final object BaseHaxePlugin extends AutoPlugin {
             case 0 =>
             case result =>
               throw new MessageOnlyException(
-                raw"""Unexpected return value $result for
-  ${processHaxelibSubmit.mkString("\"", "\" \"", "\"")}""")
+                raw"""Unexpected return value $result of haxelib submit""")
           }
         },
         publishLocal in Haxe <<= Def.task {
