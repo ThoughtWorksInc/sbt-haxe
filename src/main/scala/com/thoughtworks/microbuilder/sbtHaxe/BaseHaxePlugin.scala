@@ -126,6 +126,7 @@ final object BaseHaxePlugin extends AutoPlugin {
           val commandWithoutPassword = Seq(
             haxelibCommand.value,
             "submit",
+            "--always",
             (packageBin in Haxe).value.toString,
             haxelibSubmitUsername.?.value.getOrElse(haxelibContributors.value(0))
           )
