@@ -219,7 +219,8 @@ final object BaseHaxePlugin extends AutoPlugin {
     haxeXmls := Nil,
     haxeNativeDependencyOptions := Nil,
     haxeCommand := "haxe",
-    haxelibCommand := "haxelib"
+    haxelibCommand := "haxelib",
+    isLibrary := false
   )
 
   final val HaxeUnit = new TestFramework("com.qifun.sbtHaxe.testInterface.HaxeUnitFramework")

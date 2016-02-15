@@ -45,7 +45,14 @@ object HaxeCppPlugin extends AutoPlugin {
         setting <- Seq(
           haxePlatformName in injectConfiguration := "cpp",
           target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
-          haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value)
+          haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value),
+          haxeOptions in injectConfiguration ++= {
+            if (isLibrary.value) {
+              Seq("-D", "static_link")
+            } else {
+              Seq()
+            }
+          }
         )
       } yield setting) ++
       Seq(

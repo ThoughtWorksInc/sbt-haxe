@@ -63,6 +63,8 @@ trait HaxeKeys {
   final val makeExtraParamsHxml = TaskKey[Option[File]]("make-extra-params-hxml", "Create extraParams.hxml")
 
   final val haxeNativeDependencyOptions = TaskKey[Seq[String]]("haxe-native-dependency-options", "-java-lib or -net-lib options for Haxe compiler.")
+
+  final val isLibrary = TaskKey[Boolean]("is-library", "Indicate whether the current Haxe project is a library or a executable. The Haxe compiler generate DLL for C# target, static library for C++ target and SWC for Flash target, if `isLibrary` is true.")
 }
 
 final object HaxeKeys extends HaxeKeys
