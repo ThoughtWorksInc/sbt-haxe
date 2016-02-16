@@ -45,7 +45,7 @@ object HaxeFlashPlugin extends AutoPlugin {
         setting <- Seq(
           haxePlatformName in injectConfiguration := "swf",
           target in haxe in injectConfiguration := {
-            if (isLibrary.value) {
+            if ((isLibrary in injectConfiguration).value) {
               (sourceManaged in injectConfiguration).value / raw"""${name.value}.swc"""
             } else {
               (sourceManaged in injectConfiguration).value / raw"""${name.value}.swf"""

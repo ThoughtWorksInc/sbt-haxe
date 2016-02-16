@@ -47,7 +47,7 @@ object HaxeCppPlugin extends AutoPlugin {
           target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
           haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value),
           haxeOptions in injectConfiguration ++= {
-            if (isLibrary.value) {
+            if ((isLibrary in injectConfiguration).value) {
               Seq("-D", "static_link")
             } else {
               Seq()

@@ -17,6 +17,7 @@
 
 package com.thoughtworks.microbuilder.sbtHaxe
 
+import com.thoughtworks.microbuilder.sbtHaxe.DependencyVersion.SpecificVersion
 import sbt._
 import Keys._
 import HaxeKeys._
@@ -49,7 +50,7 @@ final object HaxeCSharpPlugin extends AutoPlugin {
           target in haxe in injectConfiguration := (sourceManaged in injectConfiguration).value,
           haxeOutputPath in injectConfiguration := Some((target in haxe in injectConfiguration).value),
           haxeOptions in injectConfiguration ++= {
-            if (isLibrary.value) {
+            if ((isLibrary in injectConfiguration).value) {
               Seq("-D", "dll")
             } else {
               Seq()
